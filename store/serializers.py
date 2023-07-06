@@ -14,7 +14,21 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
 
+
+
   images=ProductImageSerializer(many=True,read_only=True)
   class Meta:
     model=Product
     fields=['id', 'title','description','unit_price','inventory','barcode','images']
+
+
+class CreateProductImageSerializer(serializers.ModelSerializer):
+  
+  class Meta:
+    model=ProductImage
+    fields=['id','image']
+
+  def create(self,validated_data):
+    image = ProductImage.objects.create(image=validated_data['image'],product_id=self.context['product_id'])
+    image.save()
+    return image

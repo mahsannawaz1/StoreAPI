@@ -1,13 +1,14 @@
 from django.shortcuts import render,get_object_or_404
 from rest_framework.views import APIView
-
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.parsers import FileUploadParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import api_view,permission_classes
-from .models import Product
+from .models import Product,ProductImage
 from django.core.exceptions import ObjectDoesNotExist
-from .serializers import ProductSerializer
+from .serializers import ProductSerializer,ProductImageSerializer,CreateProductImageSerializer
 # Create your views here.
 
 
@@ -57,6 +58,19 @@ class RetrieveUpdateDeleteProductAPIView(APIView):
     product.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
  
+class CreateDeleteProductImageAPIView(ModelViewSet):
 
+  http_method_names = ['post','delete']
+  permission_classes = [IsAdminUser]
+  def get_queryset(self):
+    return ProductImage.objects.filter(product_id=self.kwargs['product_pk'])
 
+  def get_serializer_context(self):
+    return {'product_id': self.kwargs['product_pk']}
 
+  def get_serializer_class(self):
+
+    if self.request.method == 'POST':
+      return CreateProductImageSerializer
+    return ProductImageSerializer
+  
