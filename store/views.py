@@ -6,9 +6,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser,IsAuthenticated
 from rest_framework.decorators import api_view,permission_classes
-from .models import Product,ProductImage,Review
+from .models import Product,ProductImage,Review,Comment,Customer
 from django.core.exceptions import ObjectDoesNotExist
-from .serializers import ProductSerializer,ProductImageSerializer,CreateProductImageSerializer,ProductReviewSerializer,PrimaryProductReviewSerializer
+from .serializers import ProductSerializer,ProductImageSerializer,CreateProductImageSerializer,ProductReviewSerializer,PrimaryProductReviewSerializer,ProductCommentSerializer,PrimaryProductCommentSerializer
 # Create your views here.
 
 
@@ -91,5 +91,23 @@ class ReviewViewSet(ModelViewSet):
 
     elif self.request.method =='GET':
       return PrimaryProductReviewSerializer
+  
+ 
+class CommentViewSet(ModelViewSet):
+  http_method_names = ['get', 'post', 'patch', 'delete']
+  permission_classes = [IsAuthenticated]
+  def get_queryset(self):
+
+      return Comment.objects.filter(product_id=self.kwargs['product_pk'])
+  
+  def get_serializer_context(self):
+    return {'user':self.request.user,'product_id':self.kwargs['product_pk']}
+
+  def get_serializer_class(self):
+    if self.request.method in ['POST','PATCH','DELETE']:
+      return ProductCommentSerializer
+
+    elif self.request.method =='GET':
+      return PrimaryProductCommentSerializer
   
  
