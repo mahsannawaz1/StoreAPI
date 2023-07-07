@@ -64,3 +64,17 @@ class Review(models.Model):
   posted_on=models.DateTimeField(auto_now_add=True)
   def __str__(self):
     return f"{self.customer.user.username}'s Review {self.id}"
+
+
+class Cart(models.Model):
+  customer = models.ForeignKey(Customer,on_delete=models.CASCADE,related_name='cart')
+  created_at=models.DateTimeField(auto_now_add=True)
+  def __str__(self):
+    return f"{self.customer.user.username}'s Cart"
+
+class CartItem(models.Model):
+  cart=models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_items')
+  product=models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart_items')
+  quantity=models.PositiveIntegerField(validators=[MinValueValidator(0)])
+  def __str__(self):
+    return f"Cart#{self.cart.id} items"
