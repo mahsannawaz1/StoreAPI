@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Product,ProductImage,Review,Customer
-
+from accounts.serializers import UserSerializer
 class ProductImageSerializer(serializers.ModelSerializer):
   image = serializers.SerializerMethodField(method_name='product_image')
 
@@ -35,9 +35,10 @@ class CreateProductImageSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
+  user=UserSerializer(read_only=True)
   class Meta:
     model=Customer
-    fields=['id','phone','birth_date']
+    fields=['id','phone','user','birth_date']
 
 class PrimaryProductReviewSerializer(serializers.ModelSerializer):
   posted_on=serializers.DateTimeField(read_only=True)
