@@ -13,13 +13,11 @@ class Product(models.Model):
   def __str__(self):
     return f'{self.title}'
 
-
 class ProductImage(models.Model):
   image=models.ImageField(upload_to='products',default='default.png')
   product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name='images')
   def __str__(self):
     return f'{self.product.title} image'
-
 
 class Customer(models.Model):
   MEMBERSHIP_BRONZE='B'
@@ -47,6 +45,7 @@ class Address(models.Model):
 
   def __str__(self):
     return f"{self.customer.user.username}'s Address"
+
 class Comment(models.Model):
   description=models.TextField()
   customer=models.ForeignKey(Customer, on_delete=models.CASCADE,related_name='comments',null=True,blank=True)

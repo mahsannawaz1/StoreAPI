@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product,ProductImage
+from .models import Product,ProductImage,Review,Customer
 
 class ProductImageSerializer(serializers.ModelSerializer):
   image = serializers.SerializerMethodField(method_name='product_image')
@@ -32,3 +32,41 @@ class CreateProductImageSerializer(serializers.ModelSerializer):
     image = ProductImage.objects.create(image=validated_data['image'],product_id=self.context['product_id'])
     image.save()
     return image
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+  class Meta:
+    model=Customer
+    fields=['id','phone','birth_date']
+
+class PrimaryProductReviewSerializer(serializers.ModelSerializer):
+  posted_on=serializers.DateTimeField(read_only=True)
+  customer=CustomerSerializer()
+  
+  class Meta:
+    model = Review
+    fields=['id','title','description','rating','customer','posted_on']   
+
+class ProductReviewSerializer(serializers.ModelSerializer):
+  
+  class Meta:
+    model = Review
+    fields=['title','description','rating']   
+
+
+  def create(self,validated_data):
+    title=validated_data['title']
+    description=validated_data['description']
+    rating=validated_data['rating']
+    product_id=self.context['product_id']
+    customer=Customer.objects.get(user=self.context['user'])
+    product=Product.objects.get(id=product_id)
+  
+    review=Review.objects.create(
+      title=title, description=description,rating=rating, customer=customer, 
+      product=product
+      )
+    print(review)
+    review.save()
+    return review
+    

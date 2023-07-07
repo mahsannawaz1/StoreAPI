@@ -4,11 +4,11 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.parsers import FileUploadParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser,IsAuthenticated
 from rest_framework.decorators import api_view,permission_classes
-from .models import Product,ProductImage
+from .models import Product,ProductImage,Review
 from django.core.exceptions import ObjectDoesNotExist
-from .serializers import ProductSerializer,ProductImageSerializer,CreateProductImageSerializer
+from .serializers import ProductSerializer,ProductImageSerializer,CreateProductImageSerializer,ProductReviewSerializer,PrimaryProductReviewSerializer
 # Create your views here.
 
 
@@ -74,3 +74,22 @@ class CreateDeleteProductImageAPIView(ModelViewSet):
       return CreateProductImageSerializer
     return ProductImageSerializer
   
+
+class ReviewViewSet(ModelViewSet):
+  http_method_names = ['get', 'post', 'patch', 'delete']
+  permission_classes = [IsAuthenticated]
+  def get_queryset(self):
+
+      return Review.objects.filter(product_id=self.kwargs['product_pk'])
+  
+  def get_serializer_context(self):
+    return {'user':self.request.user,'product_id':self.kwargs['product_pk']}
+
+  def get_serializer_class(self):
+    if self.request.method in ['POST','PATCH','DELETE']:
+      return ProductReviewSerializer
+
+    elif self.request.method =='GET':
+      return PrimaryProductReviewSerializer
+  
+ 
