@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import Product,ProductImage,Review,Customer,Comment,Cart,CartItem
+from .models import Product,ProductImage,Review,Customer,Comment,Cart,CartItem,Order,OrderItem,Address
 from accounts.serializers import UserSerializer
+from django.db import transaction
 class ProductImageSerializer(serializers.ModelSerializer):
   image = serializers.SerializerMethodField(method_name='product_image')
 
@@ -113,20 +114,27 @@ class CartItemSerializer(serializers.ModelSerializer):
       raise serializers.ValidationError('Product with the given ID not Found')  
     return product
 
+
   def create(self,validated_data):
     
     cart_id=self.context['cart_id']
     product=validated_data['product']
     quantity=validated_data['quantity']
-    if CartItem.objects.filter(product_id=product).exists():
-      cart_item=CartItem.objects.get(product_id=product)
-      cart_item.quantity+=quantity
-      cart_item.save()
-      return cart_item
+    product=Product.objects.get(id=product)
+    if quantity > product.inventory:
+      raise serializers.ValidationError(
+        f'''Product with the given ID have only {product.inventory} items left in Stock'''
+        )
     else:
-      item=CartItem(cart_id=cart_id,product_id=product,quantity=quantity)
-      item.save()
-      return item
+      if CartItem.objects.filter(product_id=product).exists():
+        cart_item=CartItem.objects.get(product_id=product)
+        cart_item.quantity+=quantity
+        cart_item.save()
+        return cart_item
+      else:
+        item=CartItem(cart_id=cart_id,product_id=product,quantity=quantity)
+        item.save()
+        return item
 
 class PrimaryCartItemSerializer(serializers.ModelSerializer):
   product=ProductSerializer()
@@ -143,6 +151,16 @@ class SecondaryCartItemSerializer(serializers.ModelSerializer):
   class Meta:
     model=CartItem
     fields=['quantity']
+
+  def update(self,instance,validated_data,*args,**kwargs):
+    if validated_data['quantity'] > instance.product.inventory:
+      raise serializers.ValidationError(
+        f'''Product have only {instance.product.inventory} items left in Stock'''
+        )
+    else:
+      instance.quantity =quantity
+      return instance
+
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -165,3 +183,89 @@ class CartSerializer(serializers.ModelSerializer):
     cart.save()
     return cart
 
+
+class PrimaryOrderItemSerializer(serializers.ModelSerializer):
+  product=ProductSerializer()
+  total_price=serializers.SerializerMethodField(method_name='cal_total_price')
+  
+  class Meta:
+    model=CartItem
+    fields=['id','product','quantity','total_price']
+  def cal_total_price(self,order_item):
+    return order_item.quantity * order_item.product.unit_price
+
+class OrderSerializer(serializers.ModelSerializer):
+  created_at=serializers.DateTimeField(read_only=True)
+  cart_id=serializers.IntegerField(write_only=True)
+  customer=CustomerSerializer(read_only=True)
+  order_items=PrimaryOrderItemSerializer(read_only=True,many=True)
+  total_price=serializers.SerializerMethodField(method_name='cal_total_price')
+  class Meta:
+    model=Order
+    fields=['id','customer','cart_id','status','created_at','order_items','total_price']
+
+  def validate_cart_id(self, cart_id):
+    if not Cart.objects.filter(id=cart_id).exists():
+      
+      raise serializers.ValidationError('Cart with the given ID not Found')
+    if not CartItem.objects.filter(cart_id=cart_id).exists():
+      raise serializers.ValidationError('Cart with the given ID has 0 Items')
+    else:  
+      return cart_id
+
+  def create(self,validated_data):
+    with transaction.atomic():
+      customer=Customer.objects.get(user_id=self.context['user_id'])
+      if not Address.objects.filter(customer=customer).exists():
+        raise serializers.ValidationError('Customer must have an address to create an order')
+      else:  
+        cart_id=validated_data['cart_id']
+
+        order=Order(customer=customer)
+        order.save()
+        
+        items=CartItem.objects.filter(cart_id=cart_id)
+        items=list(items)
+
+        order_items=[OrderItem(order=order,product=item.product,quantity=item.quantity) for item in items]
+        it=OrderItem.objects.bulk_create(order_items)
+        cart=Cart.objects.get(id=cart_id)
+        cart.delete()
+
+        return order
+  
+  def cal_total_price(self,order):
+    order_items=OrderItem.objects.filter(order=order).values('product__unit_price','quantity') 
+    return sum( [ item.get('product__unit_price')*item.get('quantity') for item in order_items ] )
+
+class PrimaryOrderSerializer(serializers.ModelSerializer):
+  
+  class Meta:
+    model=Order
+    fields=['status']
+
+  def validate_status(self,value):
+    if value not in ['P','D','C']:
+      raise serializers.ValidationError('Invalid status Value Entered')
+    else:
+      return value
+
+  def update(self,instance,*args,**kwargs):
+    status=validated_data.get('status')
+    if status =='D':
+      order_items=OrderItem.objects.filter(order=instance)
+      for item in items:
+        product=Product.objects.get(id=item.product.id)
+        product.inventory-=item.quantity
+        product.save()
+    elif status =='C':
+      order_items=OrderItem.objects.filter(order=instance)
+      for item in items:
+        product=Product.objects.get(id=item.product.id)
+        product.inventory+=item.quantity
+        product.save()
+
+    instance.status=status
+    return instance
+
+  

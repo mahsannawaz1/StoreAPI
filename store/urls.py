@@ -9,6 +9,7 @@ router.register('api/products/(?P<product_pk>\d+)/images',views.CreateDeleteProd
 router.register('api/products/(?P<product_pk>\d+)/reviews',views.ReviewViewSet,basename='product-review')
 router.register('api/products/(?P<product_pk>\d+)/comments',views.CommentViewSet,basename='product-comment')
 router.register('api/carts',views.CartViewSet,basename='cart')
+router.register('api/orders',views.OrderViewSet,basename='order')
 
 item_router=routers.NestedDefaultRouter(router,'api/carts',lookup='cart')
 item_router.register('items',views.CartItemViewSet,basename='item')

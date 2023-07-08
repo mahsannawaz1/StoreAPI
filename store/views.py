@@ -6,9 +6,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser,IsAuthenticated
 from rest_framework.decorators import api_view,permission_classes
-from .models import Product,ProductImage,Review,Comment,Customer,Cart,CartItem
+from .models import Product,ProductImage,Review,Comment,Customer,Cart,CartItem,Order,OrderItem
 from django.core.exceptions import ObjectDoesNotExist
-from .serializers import ProductSerializer,ProductImageSerializer,CreateProductImageSerializer,ProductReviewSerializer,PrimaryProductReviewSerializer,ProductCommentSerializer,CartSerializer,CartItemSerializer,PrimaryCartItemSerializer,PrimaryProductCommentSerializer,SecondaryCartItemSerializer
+from .serializers import ProductSerializer,ProductImageSerializer,CreateProductImageSerializer,ProductReviewSerializer,PrimaryProductReviewSerializer,ProductCommentSerializer,CartSerializer,CartItemSerializer,PrimaryCartItemSerializer,PrimaryProductCommentSerializer,SecondaryCartItemSerializer,OrderSerializer
 # Create your views here.
 
 
@@ -141,3 +141,25 @@ class CartItemViewSet(ModelViewSet):
     return {'cart_id': self.kwargs['cart_pk']}
 
   
+class OrderViewSet(ModelViewSet):
+
+  http_method_names=['get', 'post','patch', 'delete']
+
+  def get_serializer_class(self):
+    if self.request.method == 'PATCH':
+      return PrimaryOrderSerializer
+    else:
+      return OrderSerializer
+
+  def get_permissions(self):
+    if self.request.method in ['PATCH','DELETE']:
+      return [IsAdminUser()]
+    elif self.request.method in ['GET','POST']:
+      return [IsAuthenticated()]
+
+  def get_queryset(self):
+    customer=Customer.objects.get(user=self.request.user)  
+    return Order.objects.filter(customer=customer)
+
+  def get_serializer_context(self):
+    return {'user_id': self.request.user.id}
