@@ -78,3 +78,28 @@ class CartItem(models.Model):
   quantity=models.PositiveIntegerField(validators=[MinValueValidator(0)])
   def __str__(self):
     return f"Cart#{self.cart.id} item"
+  
+
+class Order(models.Model):
+  ORDER_PENDING='P'
+  ORDER_DELIVERED='D'
+  ORDER_CANCELLED='C'
+  ORDER_STATUS=[
+    (ORDER_PENDING,'Pending'),
+    (ORDER_DELIVERED,'Delivered'),
+    (ORDER_CANCELLED,'Cancelled')
+  ]
+  customer=models.ForeignKey(Customer,on_delete=models.CASCADE ,related_name='orders')
+  created_at=models.DateTimeField(auto_now_add=True)
+  status=models.CharField(max_length=1,choices=ORDER_STATUS,default=ORDER_PENDING)
+  def __str__(self):
+    return f"{self.customer.user.username}'s Order"
+
+
+class OrderItem(models.Model):
+  order=models.ForeignKey(Order,on_delete=models.CASCADE,related_name='order_items')
+  product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name='order_items')
+  quantity=models.PositiveIntegerField(validators=[MinValueValidator(0)])
+  def __str__(self):
+    return f"Order#{self.order.id} item"
+
