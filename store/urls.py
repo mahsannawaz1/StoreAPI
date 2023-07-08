@@ -2,13 +2,20 @@
 from django.urls import path,include
 from . import views
 from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
 
 router = DefaultRouter()
-router.register('api/products/(?P<product_pk>\d+)/images',views.CreateDeleteProductImageAPIView,basename='product-images')
-router.register('api/products/(?P<product_pk>\d+)/reviews',views.ReviewViewSet,basename='product-reviews')
-router.register('api/products/(?P<product_pk>\d+)/comments',views.CommentViewSet,basename='product-comments')
+router.register('api/products/(?P<product_pk>\d+)/images',views.CreateDeleteProductImageAPIView,basename='product-image')
+router.register('api/products/(?P<product_pk>\d+)/reviews',views.ReviewViewSet,basename='product-review')
+router.register('api/products/(?P<product_pk>\d+)/comments',views.CommentViewSet,basename='product-comment')
+router.register('api/carts',views.CartViewSet,basename='cart')
+
+item_router=routers.NestedDefaultRouter(router,'api/carts',lookup='cart')
+item_router.register('items',views.CartItemViewSet,basename='item')
+
 urlpatterns = [
     path('api/products/',views.ListCreateProductAPIView.as_view()),  
     path('api/products/<int:pk>/',views.RetrieveUpdateDeleteProductAPIView.as_view(),),
-    path('',include(router.urls))
+    path('',include(router.urls)),
+    path('',include(item_router.urls))
 ] 

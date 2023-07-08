@@ -77,4 +77,4 @@ class CartItem(models.Model):
   product=models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart_items')
   quantity=models.PositiveIntegerField(validators=[MinValueValidator(0)])
   def __str__(self):
-    return f"Cart#{self.cart.id} items"
+    return f"Cart#{self.cart.id} item"
