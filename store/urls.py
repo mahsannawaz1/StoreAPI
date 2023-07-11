@@ -18,5 +18,6 @@ urlpatterns = [
     path('api/products/',views.ListCreateProductAPIView.as_view()),  
     path('api/products/<int:pk>/',views.RetrieveUpdateDeleteProductAPIView.as_view(),),
     path('',include(router.urls)),
-    path('',include(item_router.urls))
+    path('',include(item_router.urls)),
+    path('api/success/<int:pk>',views.CheckoutSuccessView.as_view(),name='success')
 ] 

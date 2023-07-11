@@ -1,7 +1,12 @@
 from rest_framework import serializers
-from .models import Product,ProductImage,Review,Customer,Comment,Cart,CartItem,Order,OrderItem,Address
+from .models import Product,ProductImage,Review,Customer,Comment,Cart,CartItem,Order,OrderItem,Address,Purchase
 from accounts.serializers import UserSerializer
 from django.db import transaction
+from django.conf import settings
+import stripe
+from django.shortcuts import redirect
+stripe.api_key=settings.STRIPE_SECRET_KEY
+
 class ProductImageSerializer(serializers.ModelSerializer):
   image = serializers.SerializerMethodField(method_name='product_image')
 
@@ -22,6 +27,21 @@ class ProductSerializer(serializers.ModelSerializer):
     model=Product
     fields=['id', 'title','description','unit_price','inventory','barcode','images']
 
+  def create(self,validated_data):
+    stripe_product=stripe.Product.create(name=validated_data['title'])
+    stripe_price=stripe.Price.create(
+      product=stripe_product.id,
+      unit_amount=int(validated_data['unit_price']*100),
+      currency='usd'
+    )
+    price=validated_data['unit_price'] *100
+    product=Product(**validated_data,stripe_product_id=stripe_product.id,stripe_price_id=stripe_price.id,stripe_price=price)
+    product.save()
+    return product
+
+
+
+    
 class CreateProductImageSerializer(serializers.ModelSerializer):
   
   class Meta:
@@ -110,6 +130,7 @@ class CartItemSerializer(serializers.ModelSerializer):
     fields=['id','product','quantity']
 
   def validate_product(self, product):
+    
     if not Product.objects.filter(id=product).exists():
       raise serializers.ValidationError('Product with the given ID not Found')  
     return product
@@ -118,21 +139,24 @@ class CartItemSerializer(serializers.ModelSerializer):
   def create(self,validated_data):
     
     cart_id=self.context['cart_id']
-    product=validated_data['product']
+    product_id=validated_data['product']
+    print(product_id)
     quantity=validated_data['quantity']
-    product=Product.objects.get(id=product)
+    product=Product.objects.get(id=product_id)
     if quantity > product.inventory:
       raise serializers.ValidationError(
         f'''Product with the given ID have only {product.inventory} items left in Stock'''
         )
     else:
-      if CartItem.objects.filter(product_id=product).exists():
-        cart_item=CartItem.objects.get(product_id=product)
+      if CartItem.objects.filter(product_id=product_id).exists():
+        cart_item=CartItem.objects.get(product_id=product_id)
         cart_item.quantity+=quantity
         cart_item.save()
+        print('old')
         return cart_item
       else:
-        item=CartItem(cart_id=cart_id,product_id=product,quantity=quantity)
+        print('new')
+        item=CartItem(cart_id=cart_id,product_id=product_id,quantity=quantity)
         item.save()
         return item
 
@@ -195,14 +219,11 @@ class PrimaryOrderItemSerializer(serializers.ModelSerializer):
     return order_item.quantity * order_item.product.unit_price
 
 class OrderSerializer(serializers.ModelSerializer):
-  created_at=serializers.DateTimeField(read_only=True)
-  cart_id=serializers.IntegerField(write_only=True)
-  customer=CustomerSerializer(read_only=True)
-  order_items=PrimaryOrderItemSerializer(read_only=True,many=True)
-  total_price=serializers.SerializerMethodField(method_name='cal_total_price')
+  cart_id = serializers.IntegerField(write_only=True)
+  checkout_url=serializers.URLField(read_only=True)
   class Meta:
     model=Order
-    fields=['id','customer','cart_id','status','created_at','order_items','total_price']
+    fields=['cart_id','checkout_url']
 
   def validate_cart_id(self, cart_id):
     if not Cart.objects.filter(id=cart_id).exists():
@@ -232,11 +253,50 @@ class OrderSerializer(serializers.ModelSerializer):
         cart=Cart.objects.get(id=cart_id)
         cart.delete()
 
+        line_items=[
+         {
+          'price_data':{
+            'currency':'usd',
+            'unit_amount':int(item.product.stripe_price),
+            'product_data':{
+              'name':item.product.title
+              }
+          },
+          'quantity':item.quantity
+         } 
+         for item in items
+        ]
+
+        
+
+        checkout_session=stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            mode='payment',
+            line_items=line_items,
+            customer_email=customer.user.email,
+            
+            success_url=f'http://127.0.0.1:8000/api/success/{order.id}',
+            cancel_url='http://127.0.0.1:8000/'
+
+        )
+        
+       
+
+        purchase=Purchase(
+          order=order,customer=customer,stripe_checkout_session_id=checkout_session.id
+          )
+        purchase.save()
+
+        order.checkout_url = checkout_session.url
+        order.save()
+
         return order
   
   def cal_total_price(self,order):
     order_items=OrderItem.objects.filter(order=order).values('product__unit_price','quantity') 
     return sum( [ item.get('product__unit_price')*item.get('quantity') for item in order_items ] )
+    
+    
 
 class PrimaryOrderSerializer(serializers.ModelSerializer):
   

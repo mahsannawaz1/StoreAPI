@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'store',
     'rest_framework',
     'rest_framework_simplejwt',
+    'stripe',
 ]
 
 MIDDLEWARE = [
@@ -58,7 +59,7 @@ ROOT_URLCONF = 'storeAPI.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -159,3 +160,6 @@ SIMPLE_JWT = {
 
 
 }
+
+STRIPE_PUBLISHER_KEY="pk_test_51NS1g6GDkK4o7IE2xlScU7oaWEoIkMbGts8bMKCWPQATKUEA9jKnvNbZykb495KKJWluV7Uv3N3LlFhlVuWeXtGu00VTHE8dVS"
+STRIPE_SECRET_KEY="sk_test_51NS1g6GDkK4o7IE2qN77tIEMx2yAhVJLHZsMFBOgxcsA04K13ztVMihtRbBYVV1FwqZrnN6SuruxYEGdL1OKRlXJ00uvxz54dS"

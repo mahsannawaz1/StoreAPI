@@ -1,4 +1,5 @@
 from django.shortcuts import render,get_object_or_404
+from django.views.generic import View
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.parsers import FileUploadParser, MultiPartParser
@@ -11,15 +12,24 @@ from django.core.exceptions import ObjectDoesNotExist
 from .serializers import ProductSerializer,ProductImageSerializer,CreateProductImageSerializer,ProductReviewSerializer,PrimaryProductReviewSerializer,ProductCommentSerializer,CartSerializer,CartItemSerializer,PrimaryCartItemSerializer,PrimaryProductCommentSerializer,SecondaryCartItemSerializer,OrderSerializer
 # Create your views here.
 
+class CheckoutSuccessView(APIView):
+  http_method_names=['get']
 
+  def get(self, request,pk, *args, **kwargs):
+    order=Order.objects.get(id=pk)
+    order.payment_status=True
+    order.save()
+   
+    return Response({'success':'Your Order has been created successfully.You will shortly recieve an Email'},status=status.HTTP_202_ACCEPTED)
+  
 class ListCreateProductAPIView(APIView):
 
   http_method_names=['get', 'post']
 
-  def get_permissions(self):
-    if self.request.method =='POST':
-      return [IsAdminUser()]
-    return super().get_permissions()
+  # def get_permissions(self):
+  #   if self.request.method =='POST':
+  #     return [IsAdminUser()]
+  #   return super().get_permissions()
 
   def get(self,request):
     products=Product.objects.prefetch_related('images').all()
@@ -151,11 +161,11 @@ class OrderViewSet(ModelViewSet):
     else:
       return OrderSerializer
 
-  def get_permissions(self):
-    if self.request.method in ['PATCH','DELETE']:
-      return [IsAdminUser()]
-    elif self.request.method in ['GET','POST']:
-      return [IsAuthenticated()]
+  # def get_permissions(self):
+  #   if self.request.method in ['PATCH','DELETE']:
+  #     return [IsAdminUser()]
+  #   elif self.request.method in ['GET','POST']:
+  #     return [IsAuthenticated()]
 
   def get_queryset(self):
     customer=Customer.objects.get(user=self.request.user)  

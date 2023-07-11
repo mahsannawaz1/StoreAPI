@@ -10,6 +10,11 @@ class Product(models.Model):
   title=models.CharField(max_length=255)
   inventory=models.PositiveIntegerField(validators=[MinValueValidator(0)])
 
+  stripe_product_id=models.CharField(max_length=255,null=True, blank=True)
+  stripe_price_id=models.CharField(max_length=255,null=True, blank=True)
+  stripe_price=models.DecimalField(decimal_places=2,max_digits=6,null=True,blank=True)
+  
+
   def __str__(self):
     return f'{self.title}'
 
@@ -89,9 +94,12 @@ class Order(models.Model):
     (ORDER_DELIVERED,'Delivered'),
     (ORDER_CANCELLED,'Cancelled')
   ]
+  payment_status=models.BooleanField(default=False)
   customer=models.ForeignKey(Customer,on_delete=models.CASCADE ,related_name='orders')
   created_at=models.DateTimeField(auto_now_add=True)
   status=models.CharField(max_length=1,choices=ORDER_STATUS,default=ORDER_PENDING)
+  checkout_url=models.URLField(null=True, blank=True)
+  
   def __str__(self):
     return f"{self.customer.user.username}'s Order"
 
@@ -103,3 +111,8 @@ class OrderItem(models.Model):
   def __str__(self):
     return f"Order#{self.order.id} item"
 
+
+class Purchase(models.Model):
+  customer=models.ForeignKey(Customer, related_name='purchases',on_delete=models.PROTECT)
+  order=models.OneToOneField(Order, related_name='purchase',on_delete=models.PROTECT)
+  stripe_checkout_session_id=models.CharField(max_length=300,null=True,blank=True)
