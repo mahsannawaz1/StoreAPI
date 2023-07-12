@@ -70,7 +70,7 @@ def webhook_view(request,*args,**kwargs):
 
 
 class CheckoutSuccessView(APIView):
-  
+  permission_classes=[IsAuthenticated]
   http_method_names=['get']
   def get(self, request,pk, *args, **kwargs):
     order=Order.objects.get(id=pk)
