@@ -7,20 +7,28 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser,IsAuthenticated
 from rest_framework.decorators import api_view,permission_classes
-from .models import Product,ProductImage,Review,Comment,Customer,Cart,CartItem,Order,OrderItem
+from .models import Product,ProductImage,Review,Comment,Customer,Cart,CartItem,Order,OrderItem,Purchase
 from django.core.exceptions import ObjectDoesNotExist
 from .serializers import ProductSerializer,ProductImageSerializer,CreateProductImageSerializer,ProductReviewSerializer,PrimaryProductReviewSerializer,ProductCommentSerializer,CartSerializer,CartItemSerializer,PrimaryCartItemSerializer,PrimaryProductCommentSerializer,SecondaryCartItemSerializer,OrderSerializer
 # Create your views here.
 
 class CheckoutSuccessView(APIView):
+  permission_classes=[IsAuthenticated]
   http_method_names=['get']
-
   def get(self, request,pk, *args, **kwargs):
     order=Order.objects.get(id=pk)
     order.payment_status=True
     order.save()
-   
+    purchase=Purchase.objects.get(order=order)
+    purchase.is_completed=True
+    purchase.save()
     return Response({'success':'Your Order has been created successfully.You will shortly recieve an Email'},status=status.HTTP_202_ACCEPTED)
+
+class CheckoutFailedView(APIView):
+  permission_classes=[IsAuthenticated]
+  http_method_names=['get']
+  def get(self, request,pk, *args, **kwargs):
+    return Response({'failure':'Payment Details are not valid'},status=status.HTTP_400_BAD_REQUEST)
   
 class ListCreateProductAPIView(APIView):
 
@@ -161,11 +169,11 @@ class OrderViewSet(ModelViewSet):
     else:
       return OrderSerializer
 
-  # def get_permissions(self):
-  #   if self.request.method in ['PATCH','DELETE']:
-  #     return [IsAdminUser()]
-  #   elif self.request.method in ['GET','POST']:
-  #     return [IsAuthenticated()]
+  def get_permissions(self):
+    if self.request.method in ['PATCH','DELETE']:
+      return [IsAdminUser()]
+    elif self.request.method in ['GET','POST']:
+      return [IsAuthenticated()]
 
   def get_queryset(self):
     customer=Customer.objects.get(user=self.request.user)  

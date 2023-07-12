@@ -276,12 +276,10 @@ class OrderSerializer(serializers.ModelSerializer):
             customer_email=customer.user.email,
             
             success_url=f'http://127.0.0.1:8000/api/success/{order.id}',
-            cancel_url='http://127.0.0.1:8000/'
+            cancel_url='http://127.0.0.1:8000/api/failure/'
 
         )
         
-       
-
         purchase=Purchase(
           order=order,customer=customer,stripe_checkout_session_id=checkout_session.id
           )

@@ -116,3 +116,4 @@ class Purchase(models.Model):
   customer=models.ForeignKey(Customer, related_name='purchases',on_delete=models.PROTECT)
   order=models.OneToOneField(Order, related_name='purchase',on_delete=models.PROTECT)
   stripe_checkout_session_id=models.CharField(max_length=300,null=True,blank=True)
+  is_completed=models.BooleanField(default=False)
