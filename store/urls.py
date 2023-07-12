@@ -20,5 +20,6 @@ urlpatterns = [
     path('',include(router.urls)),
     path('',include(item_router.urls)),
     path('api/success/<int:pk>',views.CheckoutSuccessView.as_view(),name='success'),
-    path('api/failure/',views.CheckoutFailedView.as_view(),name='failure')
+    path('api/failure/',views.CheckoutFailedView.as_view(),name='failure'),
+    path('api/webhook/',views.webhook_view,name='webhook')
 ] 

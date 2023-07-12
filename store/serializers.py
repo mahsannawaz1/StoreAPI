@@ -262,6 +262,7 @@ class OrderSerializer(serializers.ModelSerializer):
               'name':item.product.title
               }
           },
+
           'quantity':item.quantity
          } 
          for item in items
@@ -274,7 +275,9 @@ class OrderSerializer(serializers.ModelSerializer):
             mode='payment',
             line_items=line_items,
             customer_email=customer.user.email,
-            
+            metadata={
+              'order_id': order.id
+            },
             success_url=f'http://127.0.0.1:8000/api/success/{order.id}',
             cancel_url='http://127.0.0.1:8000/api/failure/'
 
