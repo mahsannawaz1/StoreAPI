@@ -19,6 +19,7 @@ import stripe
 endpoint_secret=settings.STRIPE_WEBHOOK_SECRET_KEY
 stripe.api_key=settings.STRIPE_SECRET_KEY
 
+
 @csrf_exempt
 def webhook_view(request,*args,**kwargs):
   

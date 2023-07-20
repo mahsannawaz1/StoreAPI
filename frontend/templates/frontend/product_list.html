@@ -1,0 +1,67 @@
+{% extends 'frontend/base.html' %}
+
+{% block productlist %}
+<div class="container mt-3">
+  <div class="row products justify-content-center">
+    
+      
+      
+    
+  </div>
+</div>
+
+{% endblock %}
+
+{% block productlistrequest %}
+<script type="text/javascript">
+
+  $.ajax({
+    url:'http://127.0.0.1:8000/api/products/',
+    method:'GET',
+    success: function(data) {
+      container=document.querySelector('.products');
+      var output=""
+      data.forEach(product => {
+        console.log(product.id)
+        if (product.images.length>1){
+          
+          output+=`
+                    <a href="/products/${product.id}">
+                      <div class="col m-2">
+                            <div class="card" style="width: 18rem;">
+                      <img style="height:300px;object-fit:cover" class="card-img-top " src="${product.images[1].image}" alt="Card image cap">
+                      <div class="card-body">
+                        <h5 class="card-title">${product.title}</h5>
+                        <h6 class="card-title">${product.unit_price}$</h6>
+                      
+                      </div>
+                            </div>
+                          </div>
+                    </a>
+          `
+        }
+        else{
+          output+=`
+        <a href="#">
+          <div class="col m-2">
+                <div class="card" style="width: 18rem;">
+          <img style="height:300px;object-fit:cover" class="card-img-top" src="${product.images[0].image}" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">${product.title}</h5>
+            <h6 class="card-title">${product.unit_price}$</h6>
+          
+          </div>
+                </div>
+              </div>
+        </a>
+        `
+        }
+        
+
+      });
+      container.innerHTML = output
+    }
+  })
+
+</script>
+{% endblock %}
