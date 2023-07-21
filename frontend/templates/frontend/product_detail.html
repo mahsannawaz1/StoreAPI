@@ -20,15 +20,15 @@ $.ajax({
     data.images.forEach((image,i) => {
       if (i==0){
         imgs+=`
-      <div class="carousel-item active">
-        <img style="object-fit:cover;height:300px" class="d-block w-100" src="${image.image}" alt="First slide">
+      <div class="carousel-item active ">
+        <img style="object-fit:cover;height:400px" class="d-block w-100" src="${image.image}" alt="First slide">
       </div>
       `
       }
       else{
         imgs+=`
-      <div class="carousel-item">
-        <img style="object-fit:cover;height:300px" class="d-block w-100 " src="${image.image}" alt="First slide">
+      <div class="carousel-item ">
+        <img style="object-fit:cover;height:400px" class="d-block w-100 " src="${image.image}" alt="First slide">
       </div>
       `
       }
@@ -51,18 +51,66 @@ $.ajax({
   </div>
 
     <div class="card" style="width: 18rem;">
-    <img class="card-img-top" src="..." alt="Card image cap">
+      
     <div class="card-body">
       <h5 class="card-title">${data.title}</h5>
       <p class="card-title">${data.unit_price}$</p>
       <p class="card-title">${data.inventory} Left in Stock</p>
       <p class="card-text">${data.description}</p>
-      <a href="#" class="btn btn-primary">Add to Cart </a>
+      <form action="" method="POST">
+        <label for="qty">Qty</label>
+        <input type="number" id="qty" min="1" required class="qty"  >
+        <a href="#" class="btn btn-primary cart-button">Add to Cart </a>
+      </form>
+      
     </div>
   </div>
     `
     container.innerHTML +=output
+    console.log("sadadasdadasdasd",data.id)
+    addToCart(data.id)
   }
 })
+
+const cart_id=localStorage.getItem('cart_id')
+if (cart_id==null){
+  $.ajax({
+  url:'http://127.0.0.1:8000/api/carts/',
+  method:'POST',
+  success:function(data){
+    console.log('CART CREATED')
+    console.log(data)
+    localStorage.setItem('cart_id',`${data.id}`)
+  }
+})
+
+}
+
+function addToCart(product_id){
+  console.log('in cart')
+  var button=document.querySelector('.cart-button')
+  button.addEventListener('click',function(e){
+    var qty=document.querySelector('.qty')
+    var quantity=qty.value
+    e.preventDefault()
+    console.log('button')
+    const cart_id=localStorage.getItem('cart_id')
+    console.log(cart_id)
+    console.log(product_id)
+    console.log(quantity)
+    $.ajax({
+      url:`http://127.0.0.1:8000/api/carts/${cart_id}/items/`,
+      method: 'POST',
+      data:{"product":product_id,"quantity":quantity,"csrfmiddlewaretoken": '{{ csrf_token }}'},
+      dataType:"json",
+      success:function(data){
+        console.log("Hello")
+        window.cartItems()
+        console.log("world")
+      }
+    })
+  })
+}
+
 </script>
 {% endblock %}

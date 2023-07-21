@@ -186,20 +186,22 @@ class CommentViewSet(ModelViewSet):
   
 class CartViewSet(ModelViewSet):
 
-  permission_classes = [IsAuthenticated]
+  
   serializer_class=CartSerializer
 
   def get_queryset(self):
-    customer=Customer.objects.get(user_id=self.request.user.id)
+    customer=Customer.objects.get(user__username__icontains="admin")
     return Cart.objects.prefetch_related('cart_items__product').filter(customer=customer)
  
   def get_serializer_context(self):
     return {'user_id': self.request.user.id}
+  
+
 
 class CartItemViewSet(ModelViewSet):
 
   http_method_names=['get','post','patch','delete']
-  permission_classes = [IsAuthenticated]
+  
 
   def get_queryset(self):
     print('cart_id',self.kwargs['cart_pk'])
