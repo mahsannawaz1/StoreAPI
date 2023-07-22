@@ -177,12 +177,14 @@ class SecondaryCartItemSerializer(serializers.ModelSerializer):
     fields=['quantity']
 
   def update(self,instance,validated_data,*args,**kwargs):
+   
     if validated_data['quantity'] > instance.product.inventory:
       raise serializers.ValidationError(
         f'''Product have only {instance.product.inventory} items left in Stock'''
         )
     else:
-      instance.quantity =quantity
+      instance.quantity =validated_data['quantity'] 
+      instance.save()
       return instance
 
 

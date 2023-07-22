@@ -142,7 +142,7 @@
   
 }
 
-function showCartItems(){
+    function showCartItems(){
   const cart_id=localStorage.getItem('cart_id')
   
   $.ajax({
@@ -151,23 +151,28 @@ function showCartItems(){
     success:function(data){
       
       var output=""
+      
       data.cart_items.forEach(item => {
         output+=`
         <li class="nav-link d-flex flex-wrap flex-row">
+          <input type="text" class="item-id" hidden value="${item.id}">
             <div class="col-12 text-light h5 text-center p-0">${item.product.title}</div>
             <div  class="col-4 p-0">
               <img class="img-fluid" src="${item.product.images[1].image}" alt="">
             </div>
             <div class="col-2 bg-primary text-light justify-content-around d-flex flex-column">
-              <i class="fas fa-plus"></i>
+              
+              <button style="visibility:hidden;cursor:pointer" class="product-plus"><i style="visibility:visible" class="fas fa-plus "></i></button>
+              
               <form  action="">
-                <input style="width:35px;border:0;outline:0" type="number" min="1" value="${item.quantity}">
+                <input class="product-val" style="width:35px;border:0;outline:0" type="number" min="1" value="${item.quantity}">
                
               </form>
-              <i class="fas fa-minus"></i>
+              <button style="visibility:hidden;cursor:pointer" class="product-minus"><i class="fas fa-minus" style="visibility:visible"></i></button>
+              
             </div>
             <div class="sidecart-price pl-0 col-6 bg-primary text-right d-flex flex-wrap text-light">
-              <div class="text-right text-dark d-flex flex-row justify-content-end align-items-center h6 m-0 p-0">Remove <span class="h5 ml-2 m-0 p-0 "><b>x</b></span></div>
+              <div style="cursor:pointer" class="text-right text-dark d-flex flex-row justify-content-end align-items-center h6 m-0 p-0 remove-item">Remove <span class="h5 ml-2 m-0 p-0 "><b>x</b></span></div>
               <div class="product-price">${item.product.unit_price}$</div>
               <div class=""><span class="text-dark"><b>Total</b></span> <span class="product-price-total">${item.total_price}$</span></div>
             </div>
@@ -186,13 +191,93 @@ function showCartItems(){
         </div>
       `
       
+      var remove_buttons=document.querySelectorAll('.remove-item')
+      remove_buttons=[...remove_buttons]
+      
+      var plus_buttons=document.querySelectorAll('.product-plus')
+      plus_buttons=[...plus_buttons]
+      
+
+      var minus_buttons=document.querySelectorAll('.product-minus')
+      minus_buttons=[...minus_buttons]
+      
+
+      var inputs=document.querySelectorAll('.product-val')
+      inputs=[...inputs]
+      
+      var items=document.querySelectorAll('.item-id')
+      items=[...items]
+      
+      plus_buttons.forEach((button,num)=>{
+        button.addEventListener('click',function(){
+          var value=`${inputs[num].value}+1`
+          value=eval(value)
+          inputs[num].value=value
+          
+          $.ajax({
+            url:`http://127.0.0.1:8000/api/carts/${cart_id}/items/${items[num].value}/`,
+          method: 'PATCH',
+          data:{"quantity":value,"csrfmiddlewaretoken": '{{ csrf_token }}'},
+          dataType:"json",
+        success:function(data){
+          
+          showCartItems()
+       
+        
+      }
+          })
+      
+    })
+  })
+
+      minus_buttons.forEach((button,num)=>{
+        button.addEventListener('click',function(){
+          var value=`${inputs[num].value}-1`
+          value=eval(value)
+          inputs[num].value=value
+          
+          $.ajax({
+            url:`http://127.0.0.1:8000/api/carts/${cart_id}/items/${items[num].value}/`,
+          method: 'PATCH',
+          data:{"quantity":value,"csrfmiddlewaretoken": '{{ csrf_token }}'},
+          dataType:"json",
+        success:function(data){
+          
+          showCartItems()
+        
+        
+      }
+          })
+      
+    })
+  })
+
+      remove_buttons.forEach((button,num)=>{
+        button.addEventListener('click',function(){
+          $.ajax({
+            url:`http://127.0.0.1:8000/api/carts/${cart_id}/items/${items[num].value}/`,
+          method: 'DELETE',
+          data:{"csrfmiddlewaretoken": '{{ csrf_token }}'},
+          dataType:"json",
+        success:function(data){
+          showCartItems()
+        
+        
+      }
+          })
+      
+    })
+  })  
   
+
     }
   })
+  
 }
 
-window.showCartItems = showCartItems
-winodw.toggleCart=toggleCart
+    window.showCartItems = showCartItems
+    window.toggleCart=toggleCart
+
 
 
   </script>
