@@ -126,22 +126,30 @@
   {% block productlistrequest%}
   {% endblock %}
   {% block productdetailrequest%}
+  
   {% endblock %}
-  <script text="text/javascript">
-    console.log("ffffffff")
+  <script  text="text/javascript">
+   
     function toggleCart(){
-  document.querySelector('.sidecart').classList.toggle('open-cart');
+      if (document.querySelector('.sidecart').classList.contains('open-cart')){
+        document.querySelector('.sidecart').classList.remove('open-cart');
+      }
+      else{
+        showCartItems()
+        document.querySelector('.sidecart').classList.add('open-cart');
+        
+      }
   
 }
-showCartItems()
+
 function showCartItems(){
   const cart_id=localStorage.getItem('cart_id')
-  console.log("cart_id",cart_id)
+  
   $.ajax({
     url:`http://127.0.0.1:8000/api/carts/${cart_id}/`,
     method:'GET',
     success:function(data){
-      console.log(data);
+      
       var output=""
       data.cart_items.forEach(item => {
         output+=`
@@ -177,14 +185,14 @@ function showCartItems(){
           <button type="button" class="btn btn-success w-100">Checkout</button>
         </div>
       `
-      toggleCart()
+      
   
     }
   })
 }
 
-window.cartitems=showCartItems
-
+window.showCartItems = showCartItems
+winodw.toggleCart=toggleCart
 
 
   </script>
