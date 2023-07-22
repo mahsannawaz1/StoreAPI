@@ -10,11 +10,12 @@
   </div>
 </div>
 
+
 {% endblock %}
 
 {% block productlistrequest %}
 <script type="text/javascript">
-
+function getProductList(){
   $.ajax({
     url:'http://127.0.0.1:8000/api/products/',
     method:'GET',
@@ -26,18 +27,32 @@
         if (product.images.length>1){
           
           output+=`
-                    <a href="/products/${product.id}">
+                    
                       <div class="col m-2">
                             <div class="card" style="width: 18rem;">
                       <img style="height:300px;object-fit:cover" class="card-img-top " src="${product.images[1].image}" alt="Card image cap">
-                      <div class="card-body">
-                        <h5 class="card-title">${product.title}</h5>
-                        <h6 class="card-title">${product.unit_price}$</h6>
-                      
+                      <a href="/products/${product.id}">
+                        <div class="card-body">
+                          <h5 class="card-title">${product.title}</h5>
+                          <h6 class="card-title">${product.unit_price}$</h6>
+                        
+                        </div>
+                      </a>
+
+                      {% if user.is_superuser %}
+
+                      <div class="buttons m-3">
+                        <input type="text" hidden value="${product.id}" class="product-ids">
+                            <button class="btn btn-sm btn-outline-warning update-btn">Update</button></a>
+                            
+                            <button class="btn btn-sm btn-outline-danger delete-btn">Delete</button>
                       </div>
+
+                      {% endif %}
+                      
                             </div>
                           </div>
-                    </a>
+                    
           `
         }
         else{
@@ -60,8 +75,32 @@
 
       });
       container.innerHTML = output
+      var delete_buttons = document.querySelectorAll('.delete-btn')
+      delete_buttons=[...delete_buttons]
+      var product_ids = document.querySelectorAll('.product-ids')
+      product_ids=[...product_ids]
+      delete_buttons.forEach(function(button,i){
+          button.addEventListener('click',function(e){
+            e.preventDefault()
+            const id=product_ids[i].value
+            $.ajax({
+              url:`http://127.0.0.1:8000/api/products/${id}`,
+              method:'DELETE',
+              dataType: 'json',
+              data:{"csrfmiddlewaretoken": '{{ csrf_token }}'},
+              success:function(data){
+                console.log("product deleted")
+                getProductList()
+              }
+            })
+          })
+      })
     }
   })
+}
+ 
+getProductList()
 
 </script>
 {% endblock %}
+
