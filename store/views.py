@@ -153,7 +153,7 @@ class CreateDeleteProductImageAPIView(ModelViewSet):
 class ReviewViewSet(ModelViewSet):
 
   http_method_names = ['get', 'post', 'patch', 'delete']
-  permission_classes = [IsAuthenticated]
+ 
 
   def get_queryset(self):
       return Review.objects.filter(product_id=self.kwargs['product_pk'])

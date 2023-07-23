@@ -44,6 +44,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     return user
 
 class UserSerializer(serializers.ModelSerializer):
+  image=serializers.ImageField(read_only=True)
   class Meta:
     model=User
-    fields=['email', 'first_name', 'last_name','username']
+    fields=['email', 'first_name', 'last_name','username','image']

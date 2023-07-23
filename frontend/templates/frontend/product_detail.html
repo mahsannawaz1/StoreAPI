@@ -4,7 +4,11 @@
 <div class="container div">
 
 </div>
+<div class="reviews p-5">
+  <h2 class="mb-3">Reviews</h2>
 
+
+</div>
 {% endblock %}
 
 {% block productdetailrequest %}
@@ -108,5 +112,70 @@ function addToCart(product_id){
   })
 }
 
+function getReviews(){
+  const currentURL = window.location.href;
+  var id=currentURL[currentURL.length-2]
+  $.ajax({
+    url:`http://127.0.0.1:8000/api/products/${id}/reviews`,
+    method:'GET',
+    success: function(reviews){
+      const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+      
+         const review_container=document.querySelector('.reviews')   
+         let output=""  
+         reviews.forEach(function(review){
+          var date=new Date(review.posted_on)
+          const day = date.getDate();
+          const monthIndex = date.getMonth();
+          const year = date.getFullYear();
+          const formattedDate = `${months[monthIndex]} ${day}, ${year}`;
+
+          const rating=review.rating
+          let stars=""
+          for (let i=0;i<rating;i++){
+            stars+=`<i class="fa-solid fa-star" style="color: #177d23;"></i>`
+          }
+          if(rating<5){
+            for(let i=rating;i<5;i++){
+              stars+=`<i class="fa-regular fa-star"></i>`
+            }
+          }
+          
+          output+=`
+          
+    <div class="review-body ">
+
+              <div class="user-info">
+                <img style="width:35px;height:35px;border-radius: 100%;object-fit: cover;" src="http://127.0.0.1:8000${review.customer.user.image}" alt="">
+                <span style="text-transform:capitalize">${review.customer.user.username}</span>
+              </div>
+              <div class="rating-info">
+                <div class="rating-stars">
+                 ${stars}
+                  <span style="font-weight: 600;margin-left: 0.3rem;">${review.title}</span>
+                </div>
+                
+              </div>
+              <div class="review-date">
+                <p style="margin:0;padding: 0;margin-bottom: 0.2rem;">Reviewed in the United States on ${formattedDate}</p>
+              </div>
+              <div class="review-description">
+                <p>${review.description}</p>
+              </div>
+   </div>
+
+          
+          `
+        
+        
+        })
+          review_container.innerHTML += output;            
+    }
+  })
+}
+getReviews()
 </script>
 {% endblock %}
