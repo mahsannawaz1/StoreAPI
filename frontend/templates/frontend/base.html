@@ -53,16 +53,36 @@
   width: 100%;
   white-space: nowrap;
 }
-
 body{
   position: relative;
+ 
 }
-
+.modal-container{
+  overflow: scroll;
+  position: fixed;
+  top:10%;
+  left:32%;
+  height:500px;
+  width:500px;
+  background-color: green;
+  border-radius: 5px;
+  display:block;
+  z-index:999;
+  padding:1.5rem;
+}
+.remove-modal{
+  display:none;
+  z-index:-999;
+}
 
 
     </style>
   </head>
   <body>
+    <div class="mod remove-modal">
+      <i style="transform: translateX(430px) translateY(-10px);cursor: pointer;" id="modal-toggler" class="fa-solid fa-xmark "></i>
+      <div class="modal-content"></div>
+    </div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <a class="navbar-brand" href="#">StoreAPI</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

@@ -1,32 +1,20 @@
-{% extends 'frontend/base.html' %}
-
-{% block productlist %}
+{% extends 'frontend/base.html' %} {% block productlist %}
 <div class="container mt-3">
-  <div class="row products justify-content-center">
-    
-      
-      
-    
-  </div>
+  <div class="row products justify-content-center"></div>
 </div>
 
-
-{% endblock %}
-
-{% block productlistrequest %}
+{% endblock %} {% block productlistrequest %}
 <script type="text/javascript">
-function getProductList(){
-  $.ajax({
-    url:'http://127.0.0.1:8000/api/products/',
-    method:'GET',
-    success: function(data) {
-      container=document.querySelector('.products');
-      var output=""
-      data.forEach(product => {
-        
-        if (product.images.length>1){
-          
-          output+=`
+  function getProductList() {
+    $.ajax({
+      url: "http://127.0.0.1:8000/api/products/",
+      method: "GET",
+      success: function (data) {
+        container = document.querySelector(".products");
+        var output = "";
+        data.forEach((product) => {
+          if (product.images.length > 1) {
+            output += `
                     
                       <div class="col m-2">
                             <div class="card" style="width: 18rem;">
@@ -53,10 +41,9 @@ function getProductList(){
                             </div>
                           </div>
                     
-          `
-        }
-        else{
-          output+=`
+          `;
+          } else {
+            output += `
         <a href="#">
           <div class="col m-2">
                 <div class="card" style="width: 18rem;">
@@ -69,38 +56,120 @@ function getProductList(){
                 </div>
               </div>
         </a>
-        `
-        }
-        
+        `;
+          }
+        });
+        container.innerHTML = output;
+        var delete_buttons = document.querySelectorAll(".delete-btn");
+        delete_buttons = [...delete_buttons];
 
-      });
-      container.innerHTML = output
-      var delete_buttons = document.querySelectorAll('.delete-btn')
-      delete_buttons=[...delete_buttons]
-      var product_ids = document.querySelectorAll('.product-ids')
-      product_ids=[...product_ids]
-      delete_buttons.forEach(function(button,i){
-          button.addEventListener('click',function(e){
-            e.preventDefault()
-            const id=product_ids[i].value
+        var update_buttons = document.querySelectorAll(".update-btn");
+        update_buttons = [...update_buttons];
+        var close_btn = document.getElementById("modal-toggler");
+        var modal = document.querySelector(".mod");
+
+        var product_ids = document.querySelectorAll(".product-ids");
+        product_ids = [...product_ids];
+        delete_buttons.forEach(function (button, i) {
+          button.addEventListener("click", function (e) {
+            e.preventDefault();
+            const id = product_ids[i].value;
             $.ajax({
-              url:`http://127.0.0.1:8000/api/products/${id}`,
-              method:'DELETE',
-              dataType: 'json',
-              data:{"csrfmiddlewaretoken": '{{ csrf_token }}'},
-              success:function(data){
-                console.log("product deleted")
-                getProductList()
-              }
-            })
-          })
-      })
-    }
-  })
-}
- 
-getProductList()
+              url: `http://127.0.0.1:8000/api/products/${id}`,
+              method: "DELETE",
+              dataType: "json",
+              data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
+              success: function (data) {
+                console.log("product deleted");
+                getProductList();
+              },
+            });
+          });
+        });
+       
+       
+        update_buttons.forEach(function(button,num){
 
+        button.addEventListener("click", function (e) {
+          e.preventDefault();
+          modal.classList.add("modal-container");
+          modal.classList.remove("remove-modal");
+          $.ajax({
+            url: `http://127.0.0.1:8000/api/products/${product_ids[num].value}`,
+            method: "GET",
+            success: function (data) {
+              var modal_content = document.querySelector(".modal-content");
+              output = `
+              
+              <h2 style="text-align: center;">Update Product</h2>
+                <form class="m-2">
+            <div class="form-group m-2">
+              <label for="title">Enter Title</label>
+              <input type="text" class="form-control" id="title" value="${data.title}">
+            </div>
+            <div class="form-group m-2">
+              <label for="unit_price">Enter Unit Price</label>
+              <input type="text" class="form-control" id="unit_price" value="${data.unit_price}">
+            </div>
+            <div class="form-group m-2">
+              <label for="inventory">Enter Inventory</label>
+              <input type="text" class="form-control" id="inventory" value="${data.inventory}">
+            </div>
+            <div class="form-group m-2">
+              <label for="barcode">Enter Barcode</label>
+              <input type="text" class="form-control" id="barcode" value="${data.barcode}">
+            </div>
+            <div class="form-group m-2">
+              <label for="description">Enter Description</label>
+              <textarea id="description" class="form-control" name="" id="" cols="30" rows="5" >${data.description}</textarea>
+              
+            </div>
+            <div  class="d-flex justify-content-center"> <button class="btn btn-sm btn-outline-success update">Update</button></div>
+            <input type="text" hidden value="${data.id}" id="pr-id">
+           
+                </form>
+              `;
+              modal_content.innerHTML = output
+              var upd_btn=document.querySelector('.update')
+              var id=document.getElementById('pr-id').value
+              upd_btn.addEventListener('click',function(e){
+                e.preventDefault()
+                var title=document.getElementById('title').value
+                var description=document.getElementById('description').textContent
+                var unit_price=document.getElementById('unit_price').value
+                var barcode=document.getElementById('barcode').value
+                var inventory=document.getElementById('inventory').value
+                console.log(title,"|",description, unit_price, barcode, inventory)
+                $.ajax({
+                  url:`http://127.0.0.1:8000/api/products/${id}/`,
+                  method:'PUT',
+                  dataType: 'json',
+                  data:{"title":title, "inventory":inventory,"description":description,"unit_price":unit_price,"barcode":barcode,"csrfmiddlewaretoken": '{{ csrf_token }}'},
+                  success:function(data){
+                    modal.classList.remove("modal-container");
+                    modal.classList.add("remove-modal");
+                    window.showCartItems()
+                    getProductList()
+                    console.log("updated")
+
+                  }
+                })
+              })
+            },
+          });
+          
+        });
+      })
+        
+      close_btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          modal.classList.remove("modal-container");
+          modal.classList.add("remove-modal");
+        });
+      },
+    });
+  }
+
+  getProductList();
 </script>
 {% endblock %}
-
