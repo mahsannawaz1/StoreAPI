@@ -147,8 +147,9 @@
                 $.ajax({
                   url:`http://127.0.0.1:8000/api/products/${id}/`,
                   method:'PUT',
-                  dataType: 'json',
                   data:{"title":title, "inventory":inventory,"description":description,"unit_price":unit_price,"barcode":barcode,"csrfmiddlewaretoken": '{{ csrf_token }}'},
+                  dataType: 'json',
+                  headers:{"Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjkxNDAxMTE2LCJpYXQiOjE2ODg4MDkxMTYsImp0aSI6ImE0YWQyZmQ1NTcyZTQwMjBhMGNmMmE1ODJhZTFiYzIxIiwidXNlcl9pZCI6MX0.P6iuWRE39IgDiOWI4Md1TIvAQJ9MYE3udaC-OUZdu78"},
                   success:function(data){
                     modal.classList.remove("modal-container");
                     modal.classList.add("remove-modal");

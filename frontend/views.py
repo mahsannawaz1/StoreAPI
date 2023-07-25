@@ -13,3 +13,6 @@ def get_product_detail(request,pk):
     'product_id':pk
   }
   return render(request, 'frontend/product_detail.html',context)
+
+def signup_request(request):
+  return render(request, 'frontend/signup.html')

@@ -112,10 +112,10 @@ class RetrieveUpdateDeleteProductAPIView(APIView):
 
   http_method_names=['get', 'put','delete']
 
-  # def get_permissions(self):   
-  #   if self.request.method in ['PUT','DELETE']:
-  #     return [IsAdminUser()]
-  #   return super().get_permissions()
+  def get_permissions(self):   
+    if self.request.method in ['PUT','DELETE']:
+      return [IsAdminUser()]
+    return super().get_permissions()
 
   def get(self,request,pk):
     product=get_object_or_404(Product,id=pk)
