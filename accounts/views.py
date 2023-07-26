@@ -2,10 +2,16 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework import viewsets
 from rest_framework_simplejwt.views import  TokenObtainPairView
 from .serializers import MyTokenObtainPairSerializer,UserRegisterSerializer
 # Create your views here.
+from .serializers import UserSerializer
+from .models import User
 
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 class MyTokenObtainPairView(TokenObtainPairView):
   serializer_class = MyTokenObtainPairSerializer
 

@@ -221,6 +221,7 @@ button {
 					<img src="https://colorlib.com/etc/regform/colorlib-regform-17/images/registration-form-1.jpg" alt="">
 				</div>
 				<form action="" method="POST">
+          {% csrf_token %}
 					<h3>Login Form</h3>
 					
 					<div class="form-wrapper">
@@ -234,7 +235,7 @@ button {
 						<i class="zmdi zmdi-lock"></i>
 					</div>
 			
-					<button id="register-btn">Login
+					<button type="submit" id="register-btn">Login
 						<i class="zmdi zmdi-arrow-right"></i>
 					</button>
 				</form>
@@ -260,7 +261,7 @@ button {
         data:{"csrfmiddlewaretoken": '{{ csrf_token }}',"username":username,"password":password1},
         success:function(data){
           console.log(data);
-          localStorage.setItem('auth',`${data.refresh}`)
+          localStorage.setItem('auth',`${data.access}`)
           window.location.href="http://127.0.0.1:8000/products/"
         }
       })

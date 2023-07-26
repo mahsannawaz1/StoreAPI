@@ -19,5 +19,7 @@ def signup_request(request):
   return render(request, 'frontend/signup.html')
 
 def signin_request(request):
+  print('Signing in') 
   
+    
   return render(request, 'frontend/signin.html')

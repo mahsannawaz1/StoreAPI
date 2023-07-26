@@ -3,6 +3,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 from .models import User
 from django.contrib.auth.hashers import make_password
+
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -47,4 +49,4 @@ class UserSerializer(serializers.ModelSerializer):
   image=serializers.ImageField(read_only=True)
   class Meta:
     model=User
-    fields=['email', 'first_name', 'last_name','username','image']
+    fields=['email', 'first_name', 'last_name','username','image','is_superuser','is_authenticated']
