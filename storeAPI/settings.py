@@ -170,3 +170,6 @@ EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST='localhost'
 EMAIL_PORT=2525
 DEFAULT_FROM__EMAIL='admin@gmail.com'
+
+
+LOGIN_REDIRECT_URL='product-list'
