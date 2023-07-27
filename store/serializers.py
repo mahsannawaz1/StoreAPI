@@ -254,16 +254,20 @@ class OrderSerializer(serializers.ModelSerializer):
         items=CartItem.objects.filter(cart_id=cart_id)
         items=list(items)
 
-        order_items=[OrderItem(order=order,product=item.product,quantity=item.quantity) for item in items]
+        order_items=[
+          OrderItem(order=order,product=item.product,quantity=item.quantity) 
+          for item in items
+          ]
         it=OrderItem.objects.bulk_create(order_items)
         cart=Cart.objects.get(id=cart_id)
-        cart.delete()
-
+        # cart.delete()
+        print(items)
+        print(order_items)
         line_items=[
          {
           'price_data':{
             'currency':'usd',
-            'unit_amount':int(item.product.stripe_price),
+            'unit_amount':int(item.product.unit_price)*100,
             'product_data':{
               'name':item.product.title
               }

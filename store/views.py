@@ -22,7 +22,7 @@ stripe.api_key=settings.STRIPE_SECRET_KEY
 
 @csrf_exempt
 def webhook_view(request,*args,**kwargs):
-  
+  print('webhook_view')
   payload=request.body
   sig_header=request.META['HTTP_STRIPE_SIGNATURE']
   event=None
@@ -66,13 +66,11 @@ def webhook_view(request,*args,**kwargs):
       recipient_list=[email],
       from_email="admin@gmail.com"
     )
-    
+  print('mail_sent')
   return HttpResponse(status=status.HTTP_200_OK)
 
 
-class CheckoutSuccessView(APIView):
-  permission_classes=[IsAuthenticated]
-  http_method_names=['get']
+class CheckoutSuccessView(View): 
   def get(self, request,pk, *args, **kwargs):
     order=Order.objects.get(id=pk)
     order.payment_status=True
@@ -80,13 +78,13 @@ class CheckoutSuccessView(APIView):
     purchase=Purchase.objects.get(order=order)
     purchase.is_completed=True
     purchase.save()
-    return Response({'success':'Your Order has been created successfully.You will shortly recieve an Email'},status=status.HTTP_202_ACCEPTED)
+    return render(request,'frontend/success.html')
 
-class CheckoutFailedView(APIView):
-  permission_classes=[IsAuthenticated]
-  http_method_names=['get']
-  def get(self, request,pk, *args, **kwargs):
-    return Response({'failure':'Payment Details are not valid'},status=status.HTTP_400_BAD_REQUEST)
+class CheckoutFailedView(View):
+ 
+  def get(self, request, *args, **kwargs):
+    
+    return render(request,'frontend/failure.html')
   
 class ListCreateProductAPIView(APIView):
 

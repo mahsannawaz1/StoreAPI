@@ -214,10 +214,32 @@ body{
       div.innerHTML =`
       <div class="text-light h5 text-left mx-3">Total: <span class="text-success" id="sidecart-total">${data.total_price}$</span></div>
         <div class="p-2">
-          <button type="button" class="btn btn-success w-100">Checkout</button>
+          <button type="button" class="btn btn-success w-100 checkout-btn">Checkout</button>
         </div>
       `
-      
+      var checkout_btn=document.querySelector('.checkout-btn')
+
+      checkout_btn.addEventListener('click', function(e){
+        e.preventDefault()
+        const cart_id=localStorage.getItem('cart_id')
+        console.log(cart_id)
+        const token=localStorage.getItem('auth');
+        const decodedToken = JSON.parse(atob(token.split('.')[1]));
+        const user_id=decodedToken.user_id
+        $.ajax({
+          url:`http://127.0.0.1:8000/api/orders/`,
+          method:'POST',
+          headers:{'Authorization':`Bearer ${localStorage.getItem('auth')}`},
+          dataType: 'json',
+          data:{"cart_id":`${cart_id}`},
+          success: function(data){
+            console.log(data)
+            window.location.href=data.checkout_url
+          }
+        })
+
+      })
+
       var remove_buttons=document.querySelectorAll('.remove-item')
       remove_buttons=[...remove_buttons]
       
