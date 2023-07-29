@@ -10,9 +10,7 @@ class Product(models.Model):
   title=models.CharField(max_length=255)
   inventory=models.PositiveIntegerField(validators=[MinValueValidator(0)])
 
-  stripe_product_id=models.CharField(max_length=255,null=True, blank=True)
-  stripe_price_id=models.CharField(max_length=255,null=True, blank=True)
-  stripe_price=models.DecimalField(decimal_places=2,max_digits=6,null=True,blank=True)
+ 
   
 
   def __str__(self):

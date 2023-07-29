@@ -215,11 +215,11 @@ body{
               add_btn.addEventListener('click',function(e){
                 e.preventDefault()
                 var title=document.getElementById('title').value
-                var description=document.getElementById('description').textContent
+                var description=document.getElementById('description').value
                 var unit_price=document.getElementById('unit_price').value
                 var barcode=document.getElementById('barcode').value
                 var inventory=document.getElementById('inventory').value
-                console.log(title,description, unit_price, barcode, inventory)
+                console.log(title, unit_price, barcode, inventory,"desc:",description)
                 var access=localStorage.getItem('auth')
                 $.ajax({
                   url:`http://127.0.0.1:8000/api/products/`,

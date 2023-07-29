@@ -28,14 +28,8 @@ class ProductSerializer(serializers.ModelSerializer):
     fields=['id', 'title','description','unit_price','inventory','barcode','images']
 
   def create(self,validated_data):
-    stripe_product=stripe.Product.create(name=validated_data['title'])
-    stripe_price=stripe.Price.create(
-      product=stripe_product.id,
-      unit_amount=int(validated_data['unit_price']*100),
-      currency='usd'
-    )
-    price=validated_data['unit_price'] *100
-    product=Product(**validated_data,stripe_product_id=stripe_product.id,stripe_price_id=stripe_price.id,stripe_price=price)
+    
+    product=Product(**validated_data)
     product.save()
     return product
 
