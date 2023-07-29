@@ -125,7 +125,10 @@ body{
             <a class="nav-link disabled" href="#">Disabled</a>
           </li> -->
           <li class="nav-item">
-            <a class="nav-link add-product" style="display:none;" href="#">Add Product</a>
+            <a class="nav-link add-product" style="display:none;cursor: pointer;">Add Product</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link logout-link" style="display:none;cursor: pointer;">Logout</a>
           </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
@@ -165,12 +168,67 @@ body{
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   </body>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  {% block productlistrequest%}
-  {% endblock %}
-  {% block productdetailrequest%}
+ 
   
-  {% endblock %}
   <script  text="text/javascript">
+    var is_super=false
+    var is_authenticated=false
+    const token=localStorage.getItem('auth');
+    
+
+    function checkToken(){  
+        if(token!==null){
+
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    
+    
+    
+  
+  $.ajax({
+    url:`http://127.0.0.1:8000/api/users/${decodedToken.user_id}/`,
+    method:'GET',
+    success:function(data){
+      console.log(data)
+      is_super=data.is_superuser
+      is_authenticated=data.is_authenticated
+      window.is_super=is_super
+      window.is_authenticated=is_authenticated
+      
+      if(is_authenticated || is_super){
+        console.log("OK")
+      var logout_btn = document.querySelector(".logout-link")
+      logout_btn.style.display = "block"
+
+      if(is_super){
+        var add_btn = document.querySelector(".add-product")
+        add_btn.style.display = "block"
+      } 
+      
+    }
+    }
+  })
+
+  }
+ 
+}
+  
+
+
+
+
+
+           
+            
+    function logoutUser(){
+      var logout_btn = document.querySelector(".logout-link")
+      logout_btn.addEventListener("click", function(e){
+        e.preventDefault();
+        localStorage.removeItem("auth")
+        window.location.href=`http://127.0.0.1:8000/signin/`
+      })
+    }        
+
+
     function addProduct(){
       var modal = document.querySelector(".mod");
       var button=document.querySelector('.add-product')
@@ -260,8 +318,8 @@ body{
         })
       }
     }
-    setCartId()
-    addProduct()
+    
+    
 
     function toggleCart(){
       if (document.querySelector('.sidecart').classList.contains('open-cart')){
@@ -476,13 +534,23 @@ else{
   
 
 }
-
+    
+    checkToken()
+    logoutUser()
+    setCartId()
+    addProduct()
+    window.checkToken=checkToken()
     window.showCartItems = showCartItems
     window.toggleCart=toggleCart
-
+    
 
 
   </script>
+   {% block productlistrequest%}
+   {% endblock %}
+   {% block productdetailrequest%}
+  
+  {% endblock %}
 </html>
 
 

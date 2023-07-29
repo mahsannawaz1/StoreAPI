@@ -64,6 +64,7 @@ $.ajax({
       <form action="" method="POST">
         <label for="qty">Qty</label>
         <input type="number" id="qty" min="1" required class="qty" value="1"  >
+        <p class="text-danger" id="qty-error" style="display:none;font-weight:600;font-size:13px">Enter a valid quantity</p>
         <button type="submit" class="btn btn-primary cart-button">Add to Cart </button>
       </form>
       
@@ -72,7 +73,13 @@ $.ajax({
     `
     container.innerHTML +=output
     
-    addToCart(data.id)
+      addToCart(data.id)
+    
+
+
+
+    
+    
   }
 })
 
@@ -92,6 +99,7 @@ function addToCart(product_id){
   
   var button=document.querySelector('.cart-button')
   button.addEventListener('click',function(e){
+    
     e.preventDefault()
     var qty=document.querySelector('.qty')
     var quantity=qty.value
@@ -106,9 +114,27 @@ function addToCart(product_id){
       data:{"product":product_id,"quantity":quantity,"csrfmiddlewaretoken": '{{ csrf_token }}'},
       dataType:"json",
       success:function(data){
+        var para=document.getElementById('qty-error')
+        para.style.display="none"
         console.log("added")
         window.toggleCart()
         
+      },
+      error:function(error){
+        console.log(error)
+      
+      if(error.responseJSON.messages){
+        const msgs=error.responseJSON.messages
+        
+        if(msgs[0].message=`Token is invalid or expired`){
+          window.location.href=`http://127.0.0.1:8000/signin/`
+           
+      }
+      }
+      if(error.responseJSON.quantity){
+        var para=document.getElementById('qty-error')
+        para.style.display="block"
+      }
       }
     })
   })

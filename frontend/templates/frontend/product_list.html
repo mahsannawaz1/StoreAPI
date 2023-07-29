@@ -9,23 +9,7 @@
 
 {% block productlistrequest %}
 <script type="text/javascript">
-  
-  const token=localStorage.getItem('auth');
-  const decodedToken = JSON.parse(atob(token.split('.')[1]));
-  console.log(decodedToken)
-  console.log(decodedToken.is_superuser)
-  var btns=""
-  var is_super=false
-  $.ajax({
-    url:`http://127.0.0.1:8000/api/users/${decodedToken.user_id}/`,
-    method:'GET',
-    success:function(data){
-      console.log(data)
-      is_super=data.is_superuser
 
-
-    }
-  })
 
   function getProductList() {
     $.ajax({
@@ -35,10 +19,9 @@
         container = document.querySelector(".products");
         var output = "";
         data.forEach((product) => {
-          if (is_super) {
-            var add_btn = document.querySelector(".add-product")
-            add_btn.style.display = "block"
-
+          var btns=""
+          console.log("WINDOW: ",window.is_super)
+          if (window.is_super) {
         btns=`
         <div class="buttons m-3">
                         <input type="text" hidden value="${product.id}" class="product-ids">
@@ -48,6 +31,7 @@
                       </div>
         `
       }
+
           if (product.images.length > 1) {
             output += `
                     
@@ -102,6 +86,7 @@
 
         var product_ids = document.querySelectorAll(".product-ids");
         product_ids = [...product_ids];
+
         delete_buttons.forEach(function (button, i) {
           button.addEventListener("click", function (e) {
             e.preventDefault();
@@ -204,7 +189,8 @@
       },
     });
   }
-
+  
   getProductList();
+ 
 </script>
 {% endblock %}
