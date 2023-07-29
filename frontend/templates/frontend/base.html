@@ -320,8 +320,21 @@ body{
           var value=`${inputs[num].value}-1`
           value=eval(value)
           inputs[num].value=value
-          
-          $.ajax({
+          if(value==0){
+            $.ajax({
+            url:`http://127.0.0.1:8000/api/carts/${cart_id}/items/${items[num].value}/`,
+          method: 'DELETE',
+          headers:{"Authorization":`Bearer ${localStorage.getItem('auth')}`},
+          data:{"csrfmiddlewaretoken": '{{ csrf_token }}'},
+          dataType:"json",
+        success:function(data){
+          console.log("removed")
+          window.showCartItems()   
+      }
+          })
+          }
+          else{
+            $.ajax({
             url:`http://127.0.0.1:8000/api/carts/${cart_id}/items/${items[num].value}/`,
 
           method: 'PATCH',
@@ -329,12 +342,14 @@ body{
           data:{"quantity":value,"csrfmiddlewaretoken": '{{ csrf_token }}'},
           dataType:"json",
         success:function(data){
-          
+
           showCartItems()
         
         
       }
           })
+          }
+
       
     })
   })
