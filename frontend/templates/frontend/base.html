@@ -155,7 +155,26 @@ body{
   
   {% endblock %}
   <script  text="text/javascript">
-   
+    function setCartId(){
+      console.log("setCartId")
+      const cart_id=localStorage.getItem('cart_id')
+      if(cart_id==null){
+        $.ajax({
+          url:`http://127.0.0.1:8000/api/carts/`,
+          method:'POST',
+          headers:{"Authorization":`Bearer ${localStorage.getItem('auth')}`},
+          dataType: 'json',
+          success:function(cart){
+            console.log(cart)
+            localStorage.removeItem('cart_id')
+            localStorage.setItem('cart_id',cart.id)
+          }
+        })
+      }
+    }
+    setCartId()
+
+
     function toggleCart(){
       if (document.querySelector('.sidecart').classList.contains('open-cart')){
         document.querySelector('.sidecart').classList.remove('open-cart');
@@ -169,22 +188,37 @@ body{
 }
 
     function showCartItems(){
-  const cart_id=localStorage.getItem('cart_id')
-  
+        const cart_id=localStorage.getItem('cart_id')
+        console.log(cart_id)
+
   $.ajax({
     url:`http://127.0.0.1:8000/api/carts/${cart_id}/`,
     method:'GET',
+    headers:{"Authorization":`Bearer ${localStorage.getItem('auth')}`},
     success:function(data){
-      
+      console.log(data)
       var output=""
-      
+      if(data.cart_items.length>0){
+        var container=document.getElementById('cart-items')
+        container.innerHTML = ``
+      var div=document.getElementById('total')
+      div.innerHTML=``
+        console.log("in creating items")
       data.cart_items.forEach(item => {
+        var img=""
+        console.log(item.product.images.length)
+        if(item.product.images.length<2){
+          img=`<img class="img-fluid" src="${item.product.images[0].image}" alt="">`
+        }
+        else{
+          img=`<img class="img-fluid" src="${item.product.images[1].image}" alt="">`
+        }
         output+=`
         <li class="nav-link d-flex flex-wrap flex-row">
           <input type="text" class="item-id" hidden value="${item.id}">
             <div class="col-12 text-light h5 text-center p-0">${item.product.title}</div>
             <div  class="col-4 p-0">
-              <img class="img-fluid" src="${item.product.images[1].image}" alt="">
+             ${img}
             </div>
             <div class="col-2 bg-primary text-light justify-content-around d-flex flex-column">
               
@@ -207,9 +241,10 @@ body{
         `
 
       });
-      var container=document.getElementById('cart-items')
+      
+      
       container.innerHTML = output
-      var div=document.getElementById('total')
+      
       
       div.innerHTML =`
       <div class="text-light h5 text-left mx-3">Total: <span class="text-success" id="sidecart-total">${data.total_price}$</span></div>
@@ -256,7 +291,7 @@ body{
       
       var items=document.querySelectorAll('.item-id')
       items=[...items]
-      
+      console.log(items)
       plus_buttons.forEach((button,num)=>{
         button.addEventListener('click',function(){
           var value=`${inputs[num].value}+1`
@@ -266,6 +301,7 @@ body{
           $.ajax({
             url:`http://127.0.0.1:8000/api/carts/${cart_id}/items/${items[num].value}/`,
           method: 'PATCH',
+          headers:{"Authorization":`Bearer ${localStorage.getItem('auth')}`},
           data:{"quantity":value,"csrfmiddlewaretoken": '{{ csrf_token }}'},
           dataType:"json",
         success:function(data){
@@ -287,7 +323,9 @@ body{
           
           $.ajax({
             url:`http://127.0.0.1:8000/api/carts/${cart_id}/items/${items[num].value}/`,
+
           method: 'PATCH',
+          headers:{"Authorization":`Bearer ${localStorage.getItem('auth')}`},
           data:{"quantity":value,"csrfmiddlewaretoken": '{{ csrf_token }}'},
           dataType:"json",
         success:function(data){
@@ -303,13 +341,16 @@ body{
 
       remove_buttons.forEach((button,num)=>{
         button.addEventListener('click',function(){
+         
           $.ajax({
             url:`http://127.0.0.1:8000/api/carts/${cart_id}/items/${items[num].value}/`,
           method: 'DELETE',
+          headers:{"Authorization":`Bearer ${localStorage.getItem('auth')}`},
           data:{"csrfmiddlewaretoken": '{{ csrf_token }}'},
           dataType:"json",
         success:function(data){
-          showCartItems()
+          console.log("removed")
+          window.showCartItems()
         
         
       }
@@ -318,10 +359,19 @@ body{
     })
   })  
   
-
+}
+else{
+      var container=document.getElementById('cart-items')
+      container.innerHTML = `
+      <p style="text-align: center;color:aliceblue" class="mt-3">Cart is Empty</p>
+      `
+      var div=document.getElementById('total')
+      div.innerHTML=``
+}
     }
   })
   
+
 }
 
     window.showCartItems = showCartItems

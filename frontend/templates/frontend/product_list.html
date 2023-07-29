@@ -9,7 +9,7 @@
 
 {% block productlistrequest %}
 <script type="text/javascript">
-
+  
   const token=localStorage.getItem('auth');
   const decodedToken = JSON.parse(atob(token.split('.')[1]));
   console.log(decodedToken)
@@ -36,6 +36,7 @@
         var output = "";
         data.forEach((product) => {
           if (is_super) {
+            
         btns=`
         <div class="buttons m-3">
                         <input type="text" hidden value="${product.id}" class="product-ids">
@@ -70,18 +71,21 @@
           `;
           } else {
             output += `
-        <a href="#">
+        
           <div class="col m-2">
                 <div class="card" style="width: 18rem;">
           <img style="height:300px;object-fit:cover" class="card-img-top" src="${product.images[0].image}" alt="Card image cap">
-          <div class="card-body">
-            <h5 class="card-title">${product.title}</h5>
-            <h6 class="card-title">${product.unit_price}$</h6>
-          
-          </div>
+          <a href="/products/${product.id}">
+            <div class="card-body">
+              <h5 class="card-title">${product.title}</h5>
+              <h6 class="card-title">${product.unit_price}$</h6>
+            
+            </div>
+          </a>
+          ${btns}
                 </div>
               </div>
-        </a>
+        
         `;
           }
         });

@@ -10,6 +10,7 @@ from .serializers import UserSerializer
 from .models import User
 
 class UserViewSet(viewsets.ModelViewSet):
+    http_method_names=['get']
     queryset = User.objects.all()
     serializer_class = UserSerializer
 class MyTokenObtainPairView(TokenObtainPairView):

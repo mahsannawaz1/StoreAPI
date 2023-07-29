@@ -64,7 +64,7 @@ $.ajax({
       <form action="" method="POST">
         <label for="qty">Qty</label>
         <input type="number" id="qty" min="1" required class="qty" value="1"  >
-        <a href="#" class="btn btn-primary cart-button">Add to Cart </a>
+        <button type="submit" class="btn btn-primary cart-button">Add to Cart </button>
       </form>
       
     </div>
@@ -92,19 +92,21 @@ function addToCart(product_id){
   
   var button=document.querySelector('.cart-button')
   button.addEventListener('click',function(e){
+    e.preventDefault()
     var qty=document.querySelector('.qty')
     var quantity=qty.value
-    e.preventDefault()
+    console.log(quantity)
     
     const cart_id=localStorage.getItem('cart_id')
    
     $.ajax({
       url:`http://127.0.0.1:8000/api/carts/${cart_id}/items/`,
       method: 'POST',
+      headers:{"Authorization":`Bearer ${localStorage.getItem('auth')}`},
       data:{"product":product_id,"quantity":quantity,"csrfmiddlewaretoken": '{{ csrf_token }}'},
       dataType:"json",
       success:function(data){
-        
+        console.log("added")
         window.toggleCart()
         
       }
@@ -179,3 +181,4 @@ function getReviews(){
 getReviews()
 </script>
 {% endblock %}
+

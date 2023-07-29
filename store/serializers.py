@@ -203,11 +203,8 @@ class CartSerializer(serializers.ModelSerializer):
     return sum( [ item.get('product__unit_price')*item.get('quantity') for item in cart_items ] )
 
   def create(self,validated_data):
-    customer=""
-    if self.context['user_id'] is None:
-      customer=Customer.objects.get(user__username__icontains="admin")
-    else:
-      customer=Customer.objects.get(user_id=self.context['user_id'])
+    print("User: ",self.context.get('user_id'))
+    customer=Customer.objects.get(user_id=self.context.get('user_id'))
     
     cart=Cart(customer=customer)
     cart.save()
