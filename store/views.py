@@ -189,11 +189,11 @@ class CartViewSet(ModelViewSet):
 
   def get_queryset(self):
     customer=Customer.objects.get(user=self.request.user)
-    print(customer)
+    print("CUSTOMER: ",customer)
     return Cart.objects.prefetch_related('cart_items__product').filter(customer=customer)
  
   def get_serializer_context(self):
-    print("A:",self.request.user)
+    print("current user: ",self.request.user)
     return {'user_id': self.request.user.id}
   
 
@@ -216,7 +216,7 @@ class CartItemViewSet(ModelViewSet):
       return PrimaryCartItemSerializer
     
   def get_serializer_context(self):
-    return {'cart_id': self.kwargs['cart_pk']}
+    return {'cart_id': self.kwargs['cart_pk'],'user_id':self.request.user.id}
 
   
 class OrderViewSet(ModelViewSet):

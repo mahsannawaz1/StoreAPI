@@ -106,7 +106,7 @@ function addToCart(product_id){
     console.log(quantity)
     
     const cart_id=localStorage.getItem('cart_id')
-   
+    console.log("CARTID:",cart_id)
     $.ajax({
       url:`http://127.0.0.1:8000/api/carts/${cart_id}/items/`,
       method: 'POST',

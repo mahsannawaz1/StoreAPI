@@ -70,7 +70,7 @@ class Review(models.Model):
 
 
 class Cart(models.Model):
-  customer = models.ForeignKey(Customer,on_delete=models.CASCADE,related_name='cart')
+  customer = models.OneToOneField(Customer,on_delete=models.CASCADE,related_name='cart')
   created_at=models.DateTimeField(auto_now_add=True)
   def __str__(self):
     return f"{self.customer.user.username}'s Cart"

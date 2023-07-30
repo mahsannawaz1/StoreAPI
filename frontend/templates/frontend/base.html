@@ -177,6 +177,7 @@ body{
  
   
   <script  text="text/javascript">
+    
     var is_super=false
     var is_authenticated=false
     const token=localStorage.getItem('auth');
@@ -192,6 +193,8 @@ body{
           url:`http://127.0.0.1:8000/api/users/${decodedToken.user_id}/`,
           method:'GET',
           success:function(data){
+            var cart_id=data.cart
+            localStorage.setItem('cart_id',cart_id)
             console.log(data)
             is_super=data.is_superuser
             is_authenticated=data.is_authenticated
@@ -234,7 +237,8 @@ body{
       var logout_btn = document.querySelector(".logout-link")
       logout_btn.addEventListener("click", function(e){
         e.preventDefault();
-        localStorage.removeItem("auth")
+        localStorage.removeItem('cart_id')
+        localStorage.removeItem('auth')
         window.location.href=`http://127.0.0.1:8000/signin/`
       })
     }        
@@ -315,6 +319,7 @@ body{
     function setCartId(){
       console.log("setCartId")
       const cart_id=localStorage.getItem('cart_id')
+      console.log(cart_id)
       if(cart_id==null){
         $.ajax({
           url:`http://127.0.0.1:8000/api/carts/`,

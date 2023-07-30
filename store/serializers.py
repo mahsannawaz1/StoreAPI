@@ -133,6 +133,7 @@ class CartItemSerializer(serializers.ModelSerializer):
   def create(self,validated_data):
     
     cart_id=self.context['cart_id']
+    print("CARTID: ",cart_id)
     product_id=validated_data['product']
     print(product_id)
     quantity=validated_data['quantity']
@@ -142,7 +143,7 @@ class CartItemSerializer(serializers.ModelSerializer):
         f'''Product with the given ID have only {product.inventory} items left in Stock'''
         )
     else:
-      if CartItem.objects.filter(product_id=product_id).exists():
+      if CartItem.objects.filter(product_id=product_id,cart=cart_id).exists():
         cart_item=CartItem.objects.get(product_id=product_id)
         cart_item.quantity+=quantity
         cart_item.save()

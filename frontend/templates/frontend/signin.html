@@ -243,7 +243,9 @@ button {
 					<button type="submit" id="register-btn">Login
 						<i class="zmdi zmdi-arrow-right"></i>
 					</button>
+          <p style="text-align: center;margin-top:0.8rem;" >Don't have an account yet? <a href="{% url 'signup' %}">SignUp</a> Now</p>
 				</form>
+        
 			</div>
 		</div>
 		
@@ -292,6 +294,8 @@ button {
         data:{"csrfmiddlewaretoken": '{{ csrf_token }}',"username":username,"password":password1},
         success:function(data){
           console.log(data);
+          
+          localStorage.removeItem('auth')
           localStorage.setItem('auth',`${data.access}`)
           window.location.href="http://127.0.0.1:8000/products/"
         },

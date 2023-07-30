@@ -2,6 +2,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 from .models import User
+from store.models import Cart
 from django.contrib.auth.hashers import make_password
 
 
@@ -49,6 +50,11 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
   image=serializers.ImageField(read_only=True)
+  cart=serializers.SerializerMethodField(method_name="cart_id")
+  def cart_id(self,user):
+    if Cart.objects.filter(customer=user.customer).exists():
+      return user.customer.cart.id
+    return None
   class Meta:
     model=User
-    fields=['email', 'first_name', 'last_name','username','image','is_superuser','is_authenticated']
+    fields=['email', 'first_name', 'last_name','username','image','is_superuser','is_authenticated','cart']

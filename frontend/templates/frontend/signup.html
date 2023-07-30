@@ -255,6 +255,7 @@ button {
 					<button id="register-btn">Register
 						<i class="zmdi zmdi-arrow-right"></i>
 					</button>
+          <p style="text-align: center;margin-top:0.8rem;" >Already have an account? <a href="{% url 'signin' %}">SignIn</a> Now</p>
 				</form>
 			</div>
 		</div>
@@ -324,6 +325,7 @@ button {
         data:{"csrfmiddlewaretoken": '{{ csrf_token }}',"first_name":first_name,"last_name":last_name,"username":username,"email":email,"password":password1,"password2":password2},
         success:function(data){
           console.log(data);
+          window.location.href=`http://127.0.0.1:8000/signin/`
         },
         error:function(error){
           console.log(error)
