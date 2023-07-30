@@ -25,7 +25,9 @@ input, textarea, select, button {
 
 p, h1, h2, h3, h4, h5, h6, ul {
   margin: 0;  font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;}
-
+  input{
+      margin-bottom:0.4rem !important;
+    }
 img {
   max-width: 100%; }
 
@@ -222,6 +224,9 @@ button {
 				</div>
 				<form action="">
 					<h3>Registration Form</h3>
+          <p class="text-danger" id="email-taken-error" style="display:none;opacity:0;text-align: center;color:#d9534f;margin:0 0 0.5rem 0;font-weight:600;font-size:16px;transition: opacity 0.2s ease-in;">User with this email already exists!</p>
+          <p class="text-danger" id="pass-taken-error" style="display:none;opacity:0;text-align: center;color:#d9534f;margin:0 0 0.5rem 0;font-weight:600;font-size:16px;transition: opacity 0.2s ease-in;">Password must be atleast 8 characters long!</p>
+          <p class="text-danger" id="user-taken-error" style="display:none;opacity:0;text-align: center;color:#d9534f;margin:0 0 0.5rem 0;font-weight:600;font-size:16px;transition: opacity 0.2s ease-in;">A user with that username already exists!</p>
 					<div class="form-group">
 						<input type="text" placeholder="First Name" class="form-control" id="first_name">
 						<input type="text" placeholder="Last Name" class="form-control" id="last_name">
@@ -230,19 +235,23 @@ button {
 						<input type="text" placeholder="Username" class="form-control" id="username">
 						<i class="zmdi zmdi-account"></i>
 					</div>
+          <p class="text-danger" id="username-error" style="display:none;opacity: 0;color:#d9534f;margin:0 0 0.5rem 0;font-weight:600;font-size:13px;transition: opacity 0.2s ease-in;">This field is required!</p>
 					<div class="form-wrapper">
 						<input type="text" placeholder="Email Address" class="form-control" id="email">
 						<i class="zmdi zmdi-email"></i>
 					</div>
+          <p class="text-danger" id="email-error" style="display:none;opacity: 0;color:#d9534f;margin:0 0 0.5rem 0;font-weight:600;font-size:13px;transition: opacity 0.2s ease-in;">This field is required!</p>
 					
 					<div class="form-wrapper">
 						<input type="password" placeholder="Password" class="form-control" id="pass1">
 						<i class="zmdi zmdi-lock"></i>
 					</div>
+          <p class="text-danger" id="pass1-error" style="display:none;opacity: 0;color:#d9534f;margin:0 0 0.5rem 0;font-weight:600;font-size:13px;transition: opacity 0.2s ease-in;">This field is required!</p>
 					<div class="form-wrapper">
 						<input type="password" placeholder="Confirm Password" class="form-control" id="pass2">
 						<i class="zmdi zmdi-lock"></i>
 					</div>
+          <p class="text-danger" id="pass2-error" style="display:none;opacity: 0;color:#d9534f;margin:0 0 0.5rem 0;font-weight:600;font-size:13px;transition: opacity 0.2s ease-in;">This field is required!</p>
 					<button id="register-btn">Register
 						<i class="zmdi zmdi-arrow-right"></i>
 					</button>
@@ -252,6 +261,51 @@ button {
 		
 	</body>
   <script text="text/javascript">
+    const user_btn=document.getElementById('username')
+    const email_btn=document.getElementById('email')
+    const pass1_btn=document.getElementById('pass1-error')
+    const pass2_btn=document.getElementById('pass2-error')
+    const f_name=document.getElementById('first_name')
+    const l_name=document.getElementById('last_name')
+
+    removeError(user_btn)
+    removeError(pass1_btn)
+    removeError(pass2_btn)
+    removeError(email_btn)
+    removeError(f_name)
+    removeError(l_name)
+
+    function removeError(btn){
+
+      btn.addEventListener("click",function(e) {
+      e.preventDefault();
+      var para1=document.getElementById('username-error')
+      para1.style.display="none"
+      para1.style.opacity="0"
+      var para2=document.getElementById('pass1-error')
+      para2.style.display="none"
+      para2.style.opacity="0"
+      var para3=document.getElementById('pass2-error')
+      para3.style.display="none"
+      para3.style.opacity="0"
+      var para4=document.getElementById('email-error')
+      para4.style.display="none"
+      para4.style.opacity="0"
+      var para5=document.getElementById('user-taken-error')
+      para5.style.display="none"
+      para5.style.opacity="0"
+      var para6=document.getElementById('email-taken-error')
+      para6.style.display="none"
+      para6.style.opacity="0"
+      var para7=document.getElementById('pass-taken-error')
+      para7.style.display="none"
+      para7.style.opacity="0"
+
+})
+
+}
+
+
     var btn=document.getElementById('register-btn')
     btn.addEventListener('click', function(e){
       e.preventDefault();
@@ -270,6 +324,53 @@ button {
         data:{"csrfmiddlewaretoken": '{{ csrf_token }}',"first_name":first_name,"last_name":last_name,"username":username,"email":email,"password":password1,"password2":password2},
         success:function(data){
           console.log(data);
+        },
+        error:function(error){
+          console.log(error)
+          if(error.responseJSON.username=='This field may not be blank.'){
+            var para=document.getElementById('username-error')
+            para.style.display="block"
+            para.style.opacity="1"
+          }
+          if(error.responseJSON.email=='user with this email already exists.'){
+            var para=document.getElementById('email-taken-error')
+            para.style.display="block"
+            para.style.opacity="1"
+          }
+          if(error.responseJSON.email=='This field may not be blank.'){
+            var para=document.getElementById('email-error')
+            para.style.display="block"
+            para.style.opacity="1"
+          }
+          if(error.responseJSON.username=='A user with that username already exists.'){
+            var para=document.getElementById('user-taken-error')
+            para.style.display="block"
+            para.style.opacity="1"
+          }
+          if(error.responseJSON.password=='This field may not be blank.'){
+            var para=document.getElementById('pass1-error')
+            para.style.display="block"
+            para.style.opacity="1"
+          }
+          if(error.responseJSON.password2=='This field may not be blank.'){
+            var para=document.getElementById('pass2-error')
+            para.style.display="block"
+            para.style.opacity="1"
+          }
+          for(var i=0;i<error.responseJSON.non_field_errors.length;i++){
+            if(error.responseJSON.non_field_errors[i]=="Passwords doesn't match"){
+            var para=document.getElementById('pass2-error')
+            para.textContent="Passwords doesn't match"
+            para.style.display="block"
+            para.style.opacity="1"
+          }
+          if(error.responseJSON.non_field_errors[i]=="Password must be atleast 8 characters long"){
+            var para=document.getElementById('pass-taken-error')
+            para.style.display="block"
+            para.style.opacity="1"
+          }
+          }
+          
         }
       })
     })

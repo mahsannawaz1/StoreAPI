@@ -207,6 +207,9 @@ button {
 
   button {
     margin-top: 60px; } }
+    input{
+      margin-bottom:0.4rem !important;
+    }
 
 /*# sourceMappingURL=style.css.map */
 
@@ -223,17 +226,19 @@ button {
 				<form action="" method="POST">
           {% csrf_token %}
 					<h3>Login Form</h3>
-					
+          <p class="text-danger" id="cred-error" style="visibility:hidden;opacity:0;text-align: center;color:#d9534f;margin:0 0 0.5rem 0;font-weight:600;font-size:16px;transition: opacity 0.2s ease-in;">Incorrect Username OR Password!</p>
 					<div class="form-wrapper">
 						<input type="text" placeholder="Username" class="form-control" id="username" name="username" >
 						<i class="zmdi zmdi-account"></i>
 					</div>
+          <p class="text-danger" id="username-error" style="visibility:hidden;opacity:0;color:#d9534f;margin:0 0 0.5rem 0;font-weight:600;font-size:13px;transition: opacity 0.2s ease-in;">This field is required!</p>
 					
 					
 					<div class="form-wrapper">
 						<input type="password" placeholder="Password" class="form-control" id="pass1" name="password">
 						<i class="zmdi zmdi-lock"></i>
 					</div>
+          <p class="text-danger" id="pass-error" style="visibility:hidden;opacity:0;color:#d9534f;margin:0 0 0.5rem 0;font-weight:600;font-size:13px;transition: opacity 0.2s ease-in;">This field is required!</p>
 			
 					<button type="submit" id="register-btn">Login
 						<i class="zmdi zmdi-arrow-right"></i>
@@ -244,7 +249,33 @@ button {
 		
 	</body>
   <script text="text/javascript">
+
+
+    const user_btn=document.getElementById("username");
+    const pass_btn=document.getElementById("pass1");
     var btn=document.getElementById('register-btn')
+    removeError(user_btn)
+    removeError(pass_btn)
+
+    function removeError(btn){
+
+      btn.addEventListener("click",function(e) {
+      e.preventDefault();
+      var para1=document.getElementById('username-error')
+      para1.style.visibility="hidden"
+      para1.style.opacity="0"
+      var para2=document.getElementById('pass-error')
+      para2.style.visibility="hidden"
+      para2.style.opacity="0"
+      var para3=document.getElementById('cred-error')
+      para3.style.visibility="hidden"
+      para3.style.opacity="0"
+
+    })
+
+    }
+
+    
     btn.addEventListener('click', function(e){
       e.preventDefault();
      
@@ -252,7 +283,7 @@ button {
      
       const password1=document.getElementById('pass1').value
       
-      console.log(username,password1)
+      
    
       $.ajax({
         url:`http://127.0.0.1:8000/api/login/`,
@@ -263,6 +294,25 @@ button {
           console.log(data);
           localStorage.setItem('auth',`${data.access}`)
           window.location.href="http://127.0.0.1:8000/products/"
+        },
+        error:function(error){
+          
+          if(error.responseJSON.username=='This field may not be blank.'){
+            var para=document.getElementById('username-error')
+            para.style.visibility="visible"
+            para.style.opacity="1"
+          }
+          if(error.responseJSON.password=='This field may not be blank.'){
+            var para=document.getElementById('pass-error')
+            para.style.visibility="visible"
+            para.style.opacity="1"
+          }
+          if(error.responseJSON.detail=='No active account found with the given credentials'){
+            var para=document.getElementById('cred-error')
+           para.style.visibility="visible"
+            para.style.opacity="1"
+          }
+
         }
       })
     })

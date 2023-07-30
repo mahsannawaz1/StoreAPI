@@ -130,6 +130,12 @@ body{
           <li class="nav-item">
             <a class="nav-link logout-link" style="display:none;cursor: pointer;">Logout</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link signin-link" style="display:none;cursor: pointer;" href="{% url 'signin' %}">SignIn</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link signup-link" style="display:none;cursor: pointer;" href="{% url 'signup' %}">SignUp</a>
+          </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
@@ -176,40 +182,45 @@ body{
     const token=localStorage.getItem('auth');
     
 
+
     function checkToken(){  
-        if(token!==null){
+      if(token!==null){
 
-    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+        const decodedToken = JSON.parse(atob(token.split('.')[1]));
     
-    
-    
-  
-  $.ajax({
-    url:`http://127.0.0.1:8000/api/users/${decodedToken.user_id}/`,
-    method:'GET',
-    success:function(data){
-      console.log(data)
-      is_super=data.is_superuser
-      is_authenticated=data.is_authenticated
-      window.is_super=is_super
-      window.is_authenticated=is_authenticated
-      
-      if(is_authenticated || is_super){
-        console.log("OK")
-      var logout_btn = document.querySelector(".logout-link")
-      logout_btn.style.display = "block"
+        $.ajax({
+          url:`http://127.0.0.1:8000/api/users/${decodedToken.user_id}/`,
+          method:'GET',
+          success:function(data){
+            console.log(data)
+            is_super=data.is_superuser
+            is_authenticated=data.is_authenticated
+            window.is_super=is_super
+            window.is_authenticated=is_authenticated
+            
+            if(is_authenticated || is_super){
+              console.log("OK")
+            var logout_btn = document.querySelector(".logout-link")
+            logout_btn.style.display = "block"
 
-      if(is_super){
-        var add_btn = document.querySelector(".add-product")
-        add_btn.style.display = "block"
-      } 
-      
-    }
-    }
-  })
+            if(is_super){
+              var add_btn = document.querySelector(".add-product")
+              add_btn.style.display = "block"
+            }
+           
+            
+          }
+          }
+        })
 
   }
- 
+      else{
+              var signin_btn = document.querySelector(".signin-link")
+              signin_btn.style.display = "block"
+
+              var signup_btn = document.querySelector(".signup-link")
+              signup_btn.style.display = "block"
+      }
 }
   
 
