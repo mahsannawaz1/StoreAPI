@@ -252,14 +252,14 @@ class OrderSerializer(serializers.ModelSerializer):
           ]
         it=OrderItem.objects.bulk_create(order_items)
         cart=Cart.objects.get(id=cart_id)
-        # cart.delete()
+        
         print(items)
         print(order_items)
         line_items=[
          {
           'price_data':{
             'currency':'usd',
-            'unit_amount':int(item.product.unit_price)*100,
+            'unit_amount':int(item.product.unit_price*100),
             'product_data':{
               'name':item.product.title
               }
@@ -292,7 +292,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
         order.checkout_url = checkout_session.url
         order.save()
-
+        cart.delete()
         return order
   
   def cal_total_price(self,order):
@@ -331,4 +331,8 @@ class PrimaryOrderSerializer(serializers.ModelSerializer):
     instance.status=status
     return instance
 
-  
+
+class AddressSerializer(serializers.ModelSerializer):
+  class Meta:
+    model=Address
+    fields=['id','city','state','country','street','customer']

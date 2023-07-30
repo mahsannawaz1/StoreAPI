@@ -166,7 +166,7 @@ body{
       <div id="total">    
       </div>
       </div>
-      
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -178,6 +178,88 @@ body{
   
   <script  text="text/javascript">
     
+        var provs=""
+        var customer=null
+    
+      const pakistanProvincesAndCities = [
+  {
+    province: "Sindh",
+    cities: ["Karachi", "Hyderabad", "Sukkur", "Larkana", "Mirpur Khas", "Khairpur", "Jacobabad", "Shikarpur",]
+  },
+  {
+    province: "Punjab",
+    cities: ["Lahore", "Faisalabad", "Rawalpindi", "Multan", "Gujranwala", "Bahawalpur", "Sargodha", "Sialkot",]
+  },
+  {
+    province: "Khyber Pakhtunkhwa",
+    cities: ["Peshawar", "Abbottabad", "Mardan", "Swat", "Mansehra", "Kohat", "Charsadda", "Nowshera",]
+  },
+  {
+    province: "Balochistan",
+    cities: ["Quetta", "Gwadar", "Khuzdar", "Turbat", "Chaman", "Sibi", "Lasbela", "Nushki",]
+  },
+  {
+    province: "Islamabad Capital Territory",
+    cities: ["Islamabad"]
+  },
+  {
+    province: "Gilgit-Baltistan",
+    cities: ["Gilgit", "Skardu", "Ghizer", "Hunza-Nagar", "Ghanche", "Kharmang", ]
+  },
+  {
+    province: "Azad Kashmir",
+    cities: ["Muzaffarabad", "Mirpur", "Kotli", "Rawalakot", "Bagh", "Bhimber", ]
+  },
+ 
+];
+    
+    const provinces=document.getElementById("provinces");
+    const cities=document.getElementById("cities");
+
+    for(var i=0;i<pakistanProvincesAndCities.length;i++) {
+
+      const province=pakistanProvincesAndCities[i].province
+       provs+=`
+      <option selected>${province}</option>
+      `
+    
+    }
+    console.log(provs)
+    
+   
+    
+   
+    
+
+
+function getCities(province){
+  var cits = "";
+  
+  
+    var i=0
+    while(province!=pakistanProvincesAndCities[i].province){
+      
+       if(province==pakistanProvincesAndCities[i].province){
+        
+        break;
+       }
+       else{
+        i++
+       }
+    }
+    
+        for(var j=0;j<pakistanProvincesAndCities[i].cities.length;j++){
+          const city=pakistanProvincesAndCities[i].cities[j]
+          
+      cits+=`
+      <option selected>${city}</option>
+      `
+      }
+  
+ 
+  return cits
+}
+
     var is_super=false
     var is_authenticated=false
     const token=localStorage.getItem('auth');
@@ -193,6 +275,7 @@ body{
           url:`http://127.0.0.1:8000/api/users/${decodedToken.user_id}/`,
           method:'GET',
           success:function(data){
+            customer=data.customer
             var cart_id=data.cart
             localStorage.setItem('cart_id',cart_id)
             console.log(data)
@@ -225,13 +308,7 @@ body{
               signup_btn.style.display = "block"
       }
 }
-  
-
-
-
-
-
-           
+      
             
     function logoutUser(){
       var logout_btn = document.querySelector(".logout-link")
@@ -303,6 +380,8 @@ body{
                   success:function(data){
                     modal.classList.remove("modal-container");
                     modal.classList.add("remove-modal");
+                    modal.classList.add("modal-container");
+                    modal.classList.remove("remove-modal");
                     
                     getProductList()
                     console.log("added")
@@ -315,6 +394,7 @@ body{
           
         });
     }
+
 
     function setCartId(){
       console.log("setCartId")
@@ -336,7 +416,6 @@ body{
     }
     
     
-
     function toggleCart(){
       if (document.querySelector('.sidecart').classList.contains('open-cart')){
         document.querySelector('.sidecart').classList.remove('open-cart');
@@ -430,8 +509,95 @@ body{
           dataType: 'json',
           data:{"cart_id":`${cart_id}`},
           success: function(data){
+
             console.log(data)
             window.location.href=data.checkout_url
+          },
+          error:function(error){
+            console.log(error)
+            if(error.responseJSON[0]==`Customer must have an address to create an order`){
+              toggleCart()
+              var modal = document.querySelector(".mod");
+              modal.classList.add("modal-container");
+          modal.classList.remove("remove-modal");
+              var modal_content = document.querySelector(".modal-content");
+              output = ` 
+              <h2 style="text-align: center;">Add Address</h2>
+                <form class="m-2">
+           
+                
+              <div class="form-group m-2">
+                <label for="country">Enter Country</label>
+                <input type="text" class="form-control" id="country" value="Pakistan" readonly>
+              </div>
+
+            <div class="form-group m-2" id="provinces">
+              <p for="provs" class="mb-1">Enter Province</p>
+              <select id="provs" class="form-select form-select-sm" aria-label=".form-select-sm example">
+                
+                   ${provs}
+                  </select>
+            </div>
+
+            <div class="form-group m-2" id="cities">
+              <p for="cits" class="mb-1">Enter City</p>
+              <select id="cits"  class="form-select form-select-sm" aria-label=".form-select-sm example">
+                  
+                  </select>
+            </div>
+            
+            <div class="form-group m-2">
+              <label for="shipping_address">Enter Shipping Address</label>
+              <textarea id="shipping_address" class="form-control"   cols="30" rows="5" ></textarea>    
+            </div>
+
+            <div  class="d-flex justify-content-center"> <button class="btn btn-sm btn-outline-success add-address">Add</button></div>
+            
+           
+                </form>
+              `;
+              modal_content.innerHTML = output
+              var prov=document.getElementById('provs')
+              const str=getCities(prov.value.toString())   
+              var x=document.getElementById('cits')
+              x.innerHTML = str
+             
+              prov.addEventListener("change",function(e){
+                e.preventDefault()
+                const str=getCities(prov.value.toString())   
+                
+                x.innerHTML = str
+              })
+              var add_btn=document.querySelector('.add-address')
+              add_btn.addEventListener('click',function(e){
+                e.preventDefault()
+                var prov=document.getElementById('provs').value
+                var cit=document.getElementById('cits').value
+                var shipping_address=document.getElementById('shipping_address').value
+                var country=document.getElementById('country').value
+                console.log(country,prov,cit,shipping_address)
+
+                    
+                var access=localStorage.getItem('auth')
+                $.ajax({
+                  url:`http://127.0.0.1:8000/api/addresses/`,
+                  method:'POST',
+                  data:{"city":cit, "state":prov,"street":shipping_address,"country":country,"customer":customer,"csrfmiddlewaretoken": '{{ csrf_token }}'},
+                  dataType: 'json',
+                  headers:{"Authorization":`Bearer ${access}`},
+                  success:function(data){
+                    modal.classList.remove("modal-container");
+                    modal.classList.add("remove-modal");
+                    toggleCart()
+                    
+                
+                    console.log("address added")
+
+                  }
+                })
+              })
+
+            }
           }
         })
 

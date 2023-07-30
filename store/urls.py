@@ -21,5 +21,7 @@ urlpatterns = [
     path('',include(item_router.urls)),
     path('api/success/<int:pk>',views.CheckoutSuccessView.as_view(),name='success'),
     path('api/failure/',views.CheckoutFailedView.as_view(),name='failure'),
-    path('api/webhook/',views.webhook_view,name='webhook')
+    path('api/webhook/',views.webhook_view,name='webhook'),
+     path('api/addresses/',views.CreateAddressAPIView.as_view()),  
+    path('api/addresses/<int:pk>/',views.RetrieveUpdateDeleteAddressAPIView.as_view(),),
 ] 
