@@ -58,7 +58,7 @@ class ProductReviewSerializer(serializers.ModelSerializer):
   id=serializers.IntegerField(read_only=True)
   class Meta:
     model = Review
-    fields=['id','title','description','rating']   
+    fields=['id','title','description','rating','product','customer']   
 
 
   def create(self,validated_data):

@@ -283,6 +283,7 @@ function getCities(province){
             is_authenticated=data.is_authenticated
             window.is_super=is_super
             window.is_authenticated=is_authenticated
+            window.customer=customer
             
             if(is_authenticated || is_super){
               console.log("OK")
@@ -388,9 +389,15 @@ function getCities(province){
 
                   }
                 })
+             
+                
               })
-           
-         
+              const close_btn=document.getElementById("modal-toggler");
+              close_btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          modal.classList.remove("modal-container");
+          modal.classList.add("remove-modal");
+        });
           
         });
     }
@@ -519,7 +526,7 @@ function getCities(province){
               toggleCart()
               var modal = document.querySelector(".mod");
               modal.classList.add("modal-container");
-          modal.classList.remove("remove-modal");
+              modal.classList.remove("remove-modal");
               var modal_content = document.querySelector(".modal-content");
               output = ` 
               <h2 style="text-align: center;">Add Address</h2>
@@ -596,7 +603,12 @@ function getCities(province){
                   }
                 })
               })
-
+              const close_btn=document.getElementById("modal-toggler");
+              close_btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          modal.classList.remove("modal-container");
+          modal.classList.add("remove-modal");
+        });
             }
           }
         })

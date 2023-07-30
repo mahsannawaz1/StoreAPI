@@ -9,7 +9,7 @@
 
 {% block productlistrequest %}
 <script type="text/javascript">
-
+getProductList();
 
   function getProductList() {
     $.ajax({
@@ -20,7 +20,8 @@
         var output = "";
         data.forEach((product) => {
           var btns=""
-          console.log("WINDOW: ",window.is_super)
+          console.log("WINDOW:",window.is_super)
+
           if (window.is_super) {
         btns=`
         <div class="buttons m-3">
@@ -190,7 +191,7 @@
     });
   }
   
-  getProductList();
+  
  
 </script>
 {% endblock %}
