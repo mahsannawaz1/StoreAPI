@@ -128,7 +128,7 @@ body{
             <a class="nav-link add-product" style="display:none;cursor: pointer;">Add Product</a>
           </li>
           <li class="nav-item">
-            <a href="{% url 'profile' %}" class="nav-link profile-link" style="cursor: pointer;">Profile</a>
+            <a href="{% url 'profile' %}" class="nav-link profile-link" style="display:none;cursor: pointer;">Profile</a>
           </li>
         
           <li class="nav-item">
@@ -299,6 +299,8 @@ function getCities(province){
               console.log("OK")
             var logout_btn = document.querySelector(".logout-link")
             logout_btn.style.display = "block"
+            var profile_btn = document.querySelector(".profile-link")
+              profile_btn.style.display = "block"
 
             if(is_super){
               var add_btn = document.querySelector(".add-product")
@@ -317,6 +319,8 @@ function getCities(province){
 
               var signup_btn = document.querySelector(".signup-link")
               signup_btn.style.display = "block"
+
+              
       }
 }
       
