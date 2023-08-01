@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/webhook/',views.webhook_view,name='webhook'),
      path('api/addresses/',views.CreateAddressAPIView.as_view()),  
     path('api/addresses/<int:pk>/',views.RetrieveUpdateDeleteAddressAPIView.as_view(),),
+    path('api/customers/<int:pk>/',views.RetrieveUpdateDeleteCustomerAPIView.as_view(),),
 ] 

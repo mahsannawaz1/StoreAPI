@@ -1,0 +1,128 @@
+{% extends 'frontend/base.html' %}
+
+{% block profile %}
+
+<div class="profile">
+  
+
+</div>
+
+{% endblock %}
+
+{% block getprofilerequest %}
+
+<script text="text/javascript" >
+  cust=""
+  const tok=localStorage.getItem('auth');
+  const decodedTok = JSON.parse(atob(tok.split('.')[1]));
+  $.ajax({
+          url:`http://127.0.0.1:8000/api/users/${decodedTok.user_id}/`,
+          method:'GET',
+          success:function(data){
+            cust=data.customer
+            getProfile(cust)
+            
+          }
+          })
+
+
+  function getProfile(customer_id){
+
+$.ajax({
+  url:`http://127.0.0.1:8000/api/customers/${customer_id}/`,
+  method:'GET',
+  headers:{"Authorization":`Bearer ${localStorage.getItem('auth')}`},
+  success: function(data){
+    console.log(data);
+    var div=document.querySelector('.profile')
+            let output=""
+            let orders=""
+            var formattedDate=""
+            data.orders.forEach( (order,num) => {
+
+                  var items=""
+                  order.order_items.forEach(function(item){
+                    const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  var date=new Date(order.created_at)
+          const day = date.getDate();
+          const monthIndex = date.getMonth();
+          const year = date.getFullYear();
+           formattedDate = `${months[monthIndex]} ${day}, ${year}`;
+          console.log(formattedDate);
+
+                    if(item.product.images.length > 1){
+                      console.log(item.product.unit_price)
+                      items+=`                 
+                      <tr>
+                        
+                        <td>
+                          <img style="height:40px;width:40px;object-fit:cover" src="${item.product.images[1].image}" alt="product image"> 
+                           ${item.product.title} </td>
+                        <td>${item.quantity}</td>
+                        <td>$${item.product.unit_price}</td>
+                        <td>$${item.total_price}</td>
+
+                      </tr>  
+          `
+                    }
+                    else{
+                      items+=`                 
+                      <tr>    
+
+                        <td>
+                          <img style="height:40px;width:40px;object-fit:cover" src="${item.product.images[0].image}" alt="Card image cap"> 
+                           ${item.product.title} </td>
+                        <td>${item.quantity}</td>
+                        <td>$${item.product.unit_price}</td>
+                        <td>$${item.total_price}</td>
+
+                      </tr>  
+          `
+                    }
+                     
+                  })
+                              
+                  orders+=`
+                  <div  class="order m-5">
+                    <div style="display:flex;justify-content:space-between" class="order-detail">
+                      <h2 >Order# ${num+1}</h2>
+                      <span style="">${formattedDate}</span>
+                      <h4 >Total:  <span style="color:red">$${order.total_price}</span></h4>
+                    </div>
+              <table class="table table-borderless">
+                  <thead>
+                    <tr>
+                    
+                      <th scope="col">Item</th>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Item Price</th>
+                      <th scope="col">Unit Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${items}
+                  </tbody>
+                </table>
+                </div>
+                  `
+            });
+            output=`
+            <div class="user-info">
+    <img style="width:60px;height:60px;border-radius: 100%;object-fit: cover;" src="http://127.0.0.1:8000/${data.user.image}" alt="">
+    <span style="text-transform:capitalize">${data.user.username}</span>
+            </div>
+            ${orders}
+            `
+            div.innerHTML=output
+    
+  }
+})
+}
+
+
+</script>
+
+{% endblock %}

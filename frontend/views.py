@@ -23,3 +23,9 @@ def signin_request(request):
   
     
   return render(request, 'frontend/signin.html')
+
+def user_profile(request):
+  print('User Profile  ') 
+  
+    
+  return render(request, 'frontend/profile.html')

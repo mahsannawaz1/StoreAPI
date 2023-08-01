@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAdminUser,IsAuthenticated
 from rest_framework.decorators import api_view,permission_classes
 from .models import Product,ProductImage,Review,Comment,Customer,Cart,CartItem,Order,OrderItem,Purchase,Address
 from django.core.exceptions import ObjectDoesNotExist
-from .serializers import ProductSerializer,ProductImageSerializer,CreateProductImageSerializer,ProductReviewSerializer,PrimaryProductReviewSerializer,ProductCommentSerializer,CartSerializer,CartItemSerializer,PrimaryCartItemSerializer,PrimaryProductCommentSerializer,SecondaryCartItemSerializer,OrderSerializer,AddressSerializer
+from .serializers import ProductSerializer,ProductImageSerializer,CreateProductImageSerializer,ProductReviewSerializer,PrimaryProductReviewSerializer,ProductCommentSerializer,CartSerializer,CartItemSerializer,PrimaryCartItemSerializer,PrimaryProductCommentSerializer,SecondaryCartItemSerializer,OrderSerializer,AddressSerializer,CustomerSerializer
 import stripe
 # Create your views here.
 endpoint_secret=settings.STRIPE_WEBHOOK_SECRET_KEY
@@ -283,5 +283,28 @@ class CreateAddressAPIView(APIView):
     return Response(serializer.data,status=status.HTTP_201_CREATED)
   
   
+class RetrieveUpdateDeleteCustomerAPIView(APIView):
+  http_method_names=['get']
 
+  permission_classes=[IsAuthenticated]
+
+  def get(self,request,pk):
+    cust=Customer.objects.get(user=self.request.user)
+    serializer=CustomerSerializer(cust,many=False)
+    return Response(serializer.data,status=status.HTTP_200_OK)
+
+  # def put(self,request,pk):
+  #   cust=Customer.objects.get(user=self.request.user)
+  #   address=get_object_or_404(Address,customer=cust)
+  #   serializer=AddressSerializer(address,data=request.data)
+  #   serializer.is_valid(raise_exception=True)
+  #   serializer.save()
+  #   return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+    
+
+  # def delete(self,request,pk):
+  #   cust=Customer.objects.get(user=self.request.user)
+  #   address=get_object_or_404(Address,customer=cust)
+  #   address.delete()
+  #   return Response(status=status.HTTP_204_NO_CONTENT)
 

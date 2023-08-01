@@ -7,6 +7,8 @@ import stripe
 from django.shortcuts import redirect
 stripe.api_key=settings.STRIPE_SECRET_KEY
 
+
+
 class ProductImageSerializer(serializers.ModelSerializer):
   image = serializers.SerializerMethodField(method_name='product_image')
 
@@ -47,11 +49,6 @@ class CreateProductImageSerializer(serializers.ModelSerializer):
     image.save()
     return image
 
-class CustomerSerializer(serializers.ModelSerializer):
-  user=UserSerializer(read_only=True)
-  class Meta:
-    model=Customer
-    fields=['id','phone','user','birth_date']
 
 
 class ProductReviewSerializer(serializers.ModelSerializer):
@@ -76,13 +73,7 @@ class ProductReviewSerializer(serializers.ModelSerializer):
     review.save()
     return review
 
-class PrimaryProductReviewSerializer(serializers.ModelSerializer):
-  posted_on=serializers.DateTimeField(read_only=True)
-  customer=CustomerSerializer()
-  
-  class Meta:
-    model = Review
-    fields=['id','title','description','rating','customer','posted_on']   
+
 
 
 
@@ -106,13 +97,6 @@ class ProductCommentSerializer(serializers.ModelSerializer):
     comment.save()
     return comment
 
-class PrimaryProductCommentSerializer(serializers.ModelSerializer):
-  posted_on=serializers.DateTimeField(read_only=True)
-  customer=CustomerSerializer()
-  
-  class Meta:
-    model = Comment
-    fields=['id','description','customer','posted_on']   
 
 
 
@@ -184,37 +168,10 @@ class SecondaryCartItemSerializer(serializers.ModelSerializer):
 
 
 
-class CartSerializer(serializers.ModelSerializer):
-  created_at=serializers.DateTimeField(read_only=True)
-  customer=CustomerSerializer(read_only=True)
-  cart_items=PrimaryCartItemSerializer(read_only=True,many=True)
-  total_price=serializers.SerializerMethodField(method_name='cal_total_price')
-  class Meta:
-    model=Cart 
-    fields=['id', 'created_at','customer','cart_items','total_price']
-
-  def cal_total_price(self,cart):
-    cart_items=CartItem.objects.filter(cart=cart).values('product__unit_price','quantity') 
-    return sum( [ item.get('product__unit_price')*item.get('quantity') for item in cart_items ] )
-
-  def create(self,validated_data):
-    print("User: ",self.context.get('user_id'))
-    customer=Customer.objects.get(user_id=self.context.get('user_id'))
-    
-    cart=Cart(customer=customer)
-    cart.save()
-    return cart
 
 
-class PrimaryOrderItemSerializer(serializers.ModelSerializer):
-  product=ProductSerializer()
-  total_price=serializers.SerializerMethodField(method_name='cal_total_price')
-  
-  class Meta:
-    model=CartItem
-    fields=['id','product','quantity','total_price']
-  def cal_total_price(self,order_item):
-    return order_item.quantity * order_item.product.unit_price
+
+
 
 class OrderSerializer(serializers.ModelSerializer):
   cart_id = serializers.IntegerField(write_only=True)
@@ -336,3 +293,71 @@ class AddressSerializer(serializers.ModelSerializer):
   class Meta:
     model=Address
     fields=['id','city','state','country','street','customer']
+
+class PrimaryOrderItemSerializer(serializers.ModelSerializer):
+  product=ProductSerializer()
+  total_price=serializers.SerializerMethodField(method_name='cal_total_price')
+  
+  class Meta:
+    model=CartItem
+    fields=['id','product','quantity','total_price']
+  def cal_total_price(self,order_item):
+    return order_item.quantity * order_item.product.unit_price
+class SecondaryOrderSerializer(serializers.Serializer):  
+  created_at=serializers.DateTimeField(read_only=True)
+  order_items=PrimaryOrderItemSerializer(read_only=True,many=True)
+  total_price=serializers.SerializerMethodField(method_name='cal_total_price')
+  class Meta:
+    model=Cart 
+    fields=['id', 'created_at','status','order_items','total_price','payment_status']
+
+  def cal_total_price(self,order):
+    order_items=OrderItem.objects.filter(order=order).values('product__unit_price','quantity') 
+    return sum( [ item.get('product__unit_price')*item.get('quantity') for item in order_items ] )
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+  user=UserSerializer(read_only=True)
+  address=AddressSerializer(read_only=True)
+  orders=SecondaryOrderSerializer(read_only=True,many=True)
+  class Meta:
+    model=Customer
+    fields=['id','phone','user','birth_date','address','orders']
+
+
+class PrimaryProductCommentSerializer(serializers.ModelSerializer):
+  posted_on=serializers.DateTimeField(read_only=True)
+  customer=CustomerSerializer()
+  
+  class Meta:
+    model = Comment
+    fields=['id','description','customer','posted_on']   
+
+class PrimaryProductReviewSerializer(serializers.ModelSerializer):
+  posted_on=serializers.DateTimeField(read_only=True)
+  customer=CustomerSerializer()
+  
+  class Meta:
+    model = Review
+    fields=['id','title','description','rating','customer','posted_on']   
+
+class CartSerializer(serializers.ModelSerializer):
+  created_at=serializers.DateTimeField(read_only=True)
+  customer=CustomerSerializer(read_only=True)
+  cart_items=PrimaryCartItemSerializer(read_only=True,many=True)
+  total_price=serializers.SerializerMethodField(method_name='cal_total_price')
+  class Meta:
+    model=Cart 
+    fields=['id', 'created_at','customer','cart_items','total_price']
+
+  def cal_total_price(self,cart):
+    cart_items=CartItem.objects.filter(cart=cart).values('product__unit_price','quantity') 
+    return sum( [ item.get('product__unit_price')*item.get('quantity') for item in cart_items ] )
+
+  def create(self,validated_data):
+    print("User: ",self.context.get('user_id'))
+    customer=Customer.objects.get(user_id=self.context.get('user_id'))
+    
+    cart=Cart(customer=customer)
+    cart.save()
+    return cart

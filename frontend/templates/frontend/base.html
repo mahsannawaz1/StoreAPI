@@ -128,6 +128,10 @@ body{
             <a class="nav-link add-product" style="display:none;cursor: pointer;">Add Product</a>
           </li>
           <li class="nav-item">
+            <a href="{% url 'profile' %}" class="nav-link profile-link" style="cursor: pointer;">Profile</a>
+          </li>
+        
+          <li class="nav-item">
             <a class="nav-link logout-link" style="display:none;cursor: pointer;">Logout</a>
           </li>
           <li class="nav-item">
@@ -148,7 +152,8 @@ body{
     {% endblock %}
     {% block productdetail %}
     {% endblock %}
-
+    {% block profile %}
+    {% endblock %}
     <div class="sidecart bg-dark text-center">
   
       <ul class="nav flex-column">
@@ -177,7 +182,10 @@ body{
  
   
   <script  text="text/javascript">
-    
+
+
+
+
         var provs=""
         var customer=null
     
@@ -228,7 +236,7 @@ body{
     
    
     
-   
+
     
 
 
@@ -284,7 +292,9 @@ function getCities(province){
             window.is_super=is_super
             window.is_authenticated=is_authenticated
             window.customer=customer
+
             
+
             if(is_authenticated || is_super){
               console.log("OK")
             var logout_btn = document.querySelector(".logout-link")
@@ -742,9 +752,13 @@ else{
   </script>
    {% block productlistrequest%}
    {% endblock %}
+
    {% block productdetailrequest%}
-  
   {% endblock %}
+  
+  {% block getprofilerequest %}
+  {% endblock %}
+
 </html>
 
 
