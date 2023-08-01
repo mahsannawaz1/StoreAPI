@@ -307,6 +307,7 @@ class SecondaryOrderSerializer(serializers.Serializer):
   created_at=serializers.DateTimeField(read_only=True)
   order_items=PrimaryOrderItemSerializer(read_only=True,many=True)
   total_price=serializers.SerializerMethodField(method_name='cal_total_price')
+  payment_status=serializers.CharField()
   class Meta:
     model=Cart 
     fields=['id', 'created_at','status','order_items','total_price','payment_status']
